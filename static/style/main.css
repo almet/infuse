@@ -1,0 +1,77 @@
+@font-face {
+    font-family: 'DenneFreakshowRegular';
+    src: url('denne_freakshow-webfont.eot');
+    src: url('denne_freakshow-webfont.eot?#iefix') format('embedded-opentype'),
+         url('denne_freakshow-webfont.woff') format('woff'),
+         url('denne_freakshow-webfont.ttf') format('truetype'),
+         url('denne_freakshow-webfont.svg#DenneFreakshowRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body{
+    font-size: 1.6em;
+    width: 90%;
+    margin: auto;
+    background-color: #fff;
+    color: #000;
+    font: 'Linux Libertine',Palatino,'Palatino Linotype','Book Antiqua',Georgia,'Times New Roman',serif;
+    word-spacing: 0.1em;
+}
+
+p{
+    margin-left: 30px;
+}
+
+h1, h2, h3, h4{
+    font-family: 'DenneFreakshowRegular';
+	font-weight: normal;
+	font-style: normal;
+
+}
+
+h1{
+    background-color: #C3D682;
+    color: #fff;
+    font-size: 3em;
+    margin: 0px;
+    padding: 0px;
+    padding-right: 50px;
+    text-align: right;
+}
+
+h2{
+    font-size: 2em;
+}
+
+a{
+    color: #232E01;
+}
+.highlight{
+    padding: 50px;
+    margin: 20px;
+    background-color: #EDFDB8;
+}
+
+.highlight h2{
+    margin: 0px;
+}
+
+.float-left{
+    float: left;
+}
+
+.float-right{
+    float: right;
+}
+
+#register-embedded{
+    width: 200px;
+    float: right;
+    margin: 0px 20px;
+}
+
+#under-the-hood-picture{
+    float: right;
+    margin-left: 20px;
+}

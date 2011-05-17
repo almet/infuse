@@ -1,0 +1,14 @@
+{% macro input(form, name) %}
+<p>{{ form[name].label }}<br />{{ form[name] }}
+{% for error in form[name].errors %}
+    {{ error }}
+{% endfor %}</p>
+{% endmacro %}
+
+<form action="{{ url_for("register") }}" method="post" accept-charset="utf-8">
+    {{ form.hidden_tag() }}
+    {{ input(form, 'username') }}
+    {{ input(form, 'password') }}
+    {{ input(form, 'password2') }}
+<p><input type="submit" value="Add an account &rarr;"></p>
+</form>

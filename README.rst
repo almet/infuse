@@ -6,7 +6,7 @@ is decoupled into two parts: a firefox plugin which retrieve the browsing
 data and a server side script which expose an API and provide tools to extract
 data, analyse them, cluster them and provide recommendations.
 
-This application is the server side.
+PySuggest is the server side.
 
 Web API
 =======
