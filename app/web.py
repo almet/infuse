@@ -1,13 +1,27 @@
+"""This is a tiny application to record information provided by a browser addon.
+It allows to:
+
+    * Trace the events that occured on the browser side (open tab, close tab,
+      content loaded etc.)
+    * Create a new user
+    * Record the relation between tabs (ans so allows to detect tabs trees easily)
+
+The information is recorded in a MongoDB database for later use.
+
+The original implementation uses a firefox addon as a client, but this server side 
+script does not rely on specific firefox features.
+"""
+# python stdlib imports
 import base64
 import hashlib
 from functools import wraps
 
+# flask imports
 from flask import *
-from flaskext.wtf import (Form, SubmitField, TextField, 
-        PasswordField, ValidationError, Required, EqualTo)
-
 from mongokit import Connection, Document
 from pymongo import binary
+from flaskext.wtf import (Form, SubmitField, TextField, 
+        PasswordField, ValidationError, Required, EqualTo)
 
 # configuration
 DEBUG = True
@@ -41,30 +55,7 @@ class UserForm(Form):
             raise ValidationError("This username is already used")
 
 
-@connection.register
-class Event(Document):
-    structure = {
-            'type': unicode,
-            'title': unicode,
-            'url': unicode,
-            'timestamp': unicode,
-            'tab_id': unicode,
-            'browser': unicode
-    }
-
-    use_dot_notation = True
-
-
-@connection.register
-class TabRelation(Document):
-    structure = {
-            'tab_id': unicode, 
-            'parent_id': unicode
-    }
-
-    use_dot_notation = True
-
-
+# mongodb documents
 @connection.register
 class User(Document):
     structure = {
@@ -75,7 +66,42 @@ class User(Document):
     use_dot_notation = True
 
 
+@connection.register
+class Event(Document):
+    structure = {
+            'type': unicode,
+            'title': unicode,
+            'url': unicode,
+            'timestamp': unicode,
+            'tab_id': unicode,
+            'browser': unicode,
+            'user': User,
+            'location': tuple
+    }
+
+    authorized_types = Document.authorized_types + [tuple]
+    use_dot_notation = True
+
+
+@connection.register
+class TabRelation(Document):
+    structure = {
+            'tab_id': unicode, 
+            'parent_id': unicode,
+            'user': User,
+    }
+
+    use_dot_notation = True
+
+
+# utils
 def need_authentication(func):
+    """Decorator for view functions. Only authorise to enter the view if an user is 
+    authenticated by the HTTP Authorised headers and there actually is an user
+    matching those credentials.
+
+    Return a 401 HTTP error otherwise.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         user = _get_user()
@@ -88,9 +114,13 @@ def need_authentication(func):
 
 
 def _get_user():
-    """Check that the provided credentials are matching a real user.
-
-    If not, return None
+    """Return the user authentified by the Authorization header.
+    
+    Flask exposes the request object as a global object by design, so there is no
+    need to pass the request object here.
+    
+    If an user matching the given credentials is given, return it, otherwise return
+    None.
     """
     if "Authorization" in request.headers:
         authstring = base64.decodestring(
@@ -103,13 +133,14 @@ def _get_user():
     return None
 
 
+# views
 @app.route("/")
 def index():
     return render_template("index.html", form=UserForm())
 
 @app.route("/register/", methods=["GET", "POST"])
 def register():
-    """register a new user"""
+    """Register a new user. """
     form = UserForm()
     if request.method == 'POST':
         if form.validate():
@@ -130,10 +161,25 @@ def install():
 @app.route("/event/", methods=["POST"])
 @need_authentication
 def add_event(user):
-    """record an event occured on the browser"""
+    """Record an event that occured on the browser.
+    
+    Record all the informations related to the events such as:
+
+        * the type of the event
+        * the title of the tab concerned
+        * the time of the event
+        * the tab identifier
+        * the browser used
+        * the related user
+        * the latitude and longitude
+
+    Those information are stored "as-is" and saved for later processing.
+    """
     event = events.Event()
-    for key, value in request.form.items():
-        event[key] = value
+    for key in ('type', 'title', 'url', 'timestamp', 'tab_id'):
+        event[key] = request.form[key]
+    event.location = (request.form['lat'], request.form['long'])
+    event.user = user
     event.save()
     return "event added"
 
@@ -141,16 +187,27 @@ def add_event(user):
 @app.route("/tab-relation/", methods=["POST"])
 @need_authentication
 def add_tabrelation(user):
-    """record a relationship between tabs"""
+    """Record relationships between tabs.
+    
+    The identifier used here are unique and thus there is no need to store the
+    user. However, this information is recorded so it is easy to retrieve
+    information quicker.
+
+    The Tab identifiers are the same as the one used in the Events.
+    """
     relation = tabs.TabRelation()
     relation['tab_id'] = request.form['tab_id']
     relation['parent_id'] = request.form['parent_id']
+    relation.user = user
     relation.save()
     return "relation added"
 
 
 @app.route("/debug")
 def debug():
+    """Only used for debug purposes. This will not work on the production server.
+    """
+    from ipdb import set_trace; set_trace()
     return "debug done"
 
 if __name__ == '__main__':
