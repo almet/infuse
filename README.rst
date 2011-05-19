@@ -1,12 +1,12 @@
-Pysuggest
-#########
+Infuse
+######
 
-Suggest is the implementation of a context-aware web recommendation system. It
+Infuse is the implementation of a context-aware web recommendation system. It
 is decoupled into two parts: a firefox plugin which retrieve the browsing
 data and a server side script which expose an API and provide tools to extract
 data, analyse them, cluster them and provide recommendations.
 
-PySuggest is the server side.
+This is the server side.
 
 Web API
 =======
