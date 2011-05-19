@@ -10,7 +10,7 @@
 }
 
 body{
-    font-size: 1.6em;
+    font-size: 1.3em;
     width: 90%;
     margin: auto;
     background-color: #fff;
@@ -41,11 +41,16 @@ h1{
 }
 
 h2{
-    font-size: 2em;
+    font-size: 2.4em;
 }
 
 a{
     color: #232E01;
+}
+
+h1 a{
+    color: #fff;
+    text-decoration: none;
 }
 .highlight{
     padding: 50px;

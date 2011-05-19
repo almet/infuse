@@ -1,14 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
+    {% block intro %}
     <p><em>Infuse (in·fuse)</em> is a recommendation system that aims to suggest web content you would fancy. It is able to discover the different contexts you are in when browsing and use them to provide better recommendations, based on people sharing interests with you.</p>
     <p>Infuse is a part of my <acronym title="Master of Sciences">MSc</acronym> thesis project, <em>"building a context-aware recommender for the web"</em>.</p>
-    
+    {% endblock %}
+
+        {% block highlight %}
     <div class="highlight">
         <div id="register-embedded">{% include("register_form.html") %}</div>
         <h2>You can help!</h2>
         <p>A recommendation system eats data, a lot of data. I'm looking for people willing to share data about their daily browsing usage. If you want to help, this is as simple as registering an account and <a>downloading the firefox addon</a>.</p>
         <p>This data will <strong>only be used for research purposes</strong>. The firefox plugin have an option to deactivate it anytime you want if you don't want your data to be sent to me</p>
     </div>
+        {% endblock %}
 
     <h2>Your data remains yours</h2>
     <p>The data you send me is stored in closed rooms with pillows and will <strong>never</strong> be used for any other purposes than research. I will not sell or give this data to anyone, even if they look friendly and have some good-smelling chocolate cookies.</p>

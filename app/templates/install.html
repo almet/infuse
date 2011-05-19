@@ -1,4 +1,18 @@
-{% extends "layout.html" %}
-{% block content %}
-Yeah ! You can now install the firefox plugin to send some data to the server.
+{% extends "index.html" %}
+{% block intro %}{% endblock %}
+{% block highlight %}
+<h2>Thanks !</h2>
+<p>Thank you for registering an account. The last step is to 
+<a href="#install">install the firefox plugin</a>. 
+
+The plugin needs firefox 4 or later and is based on the jetpack SDK and will send 
+data about:
+
+<ul>
+    <li>The different actions you do on your browser such as: opening a new tab, loading
+    new content in an existing tab and closing a tab.</li>
+    <li>Your geographical position, in order to determine the different browsing 
+    contexts</li>
+</ul>
+</p>
 {% endblock %}
