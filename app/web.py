@@ -154,6 +154,13 @@ def register():
             return redirect(url_for("install"))
     return render_template("register.html", form=form)
 
+@app.route("/connect/", methods=["POST"])
+def are_credentials_valid():
+    """Try to connect using the HTTP headers and return true or false"""
+    authorized = True if _get_user() else False
+    return jsonify(authorized=authorized)
+
+
 @app.route("/install/")
 def install():
     return render_template("install.html")
