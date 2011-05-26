@@ -18,27 +18,16 @@ from functools import wraps
 
 # flask imports
 from flask import *
-from mongokit import Connection, Document
-from pymongo import binary
 from flaskext.wtf import (Form, SubmitField, TextField, 
         PasswordField, ValidationError, Required, EqualTo)
 
-# configuration
-DEBUG = True
-SECRET_KEY = "thisisnotsecret"
-MONGODB_HOST = 'localhost'
-MONGODB_PORT = 27017
+# app imports
+from db import *
 
 # create the application, initialize stuff
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config.from_envvar('SETTINGS', silent=True)
-
-# some mongdb related initialisations
-connection = Connection(app.config['MONGODB_HOST'], app.config['MONGODB_PORT'])
-events = connection['suggest'].events
-tabs = connection['suggest'].tabs
-users = connection['suggest'].users
+app.config.from_pyfile('settings.py')
 
 # forms
 class UserForm(Form):
@@ -53,45 +42,6 @@ class UserForm(Form):
         user = users.one({'username': field.data})
         if user:
             raise ValidationError("This username is already used")
-
-
-# mongodb documents
-@connection.register
-class User(Document):
-    structure = {
-            'username': unicode, 
-            'password': str
-    }
-    authorized_types = Document.authorized_types + [str]
-    use_dot_notation = True
-
-
-@connection.register
-class Event(Document):
-    structure = {
-            'type': unicode,
-            'title': unicode,
-            'url': unicode,
-            'timestamp': unicode,
-            'tab_id': unicode,
-            'browser': unicode,
-            'user': User,
-            'location': tuple
-    }
-
-    authorized_types = Document.authorized_types + [tuple]
-    use_dot_notation = True
-
-
-@connection.register
-class TabRelation(Document):
-    structure = {
-            'tab_id': unicode, 
-            'parent_id': unicode,
-            'user': User,
-    }
-
-    use_dot_notation = True
 
 
 # utils
