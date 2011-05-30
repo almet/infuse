@@ -1,14 +1,14 @@
 from mongokit import Connection, Document
 from pymongo import binary
 
-from settings import *
+from infuse.settings import *
 
 connection = Connection(MONGODB_HOST, MONGODB_PORT)
 
 events = connection[MONGODB_DB].events
 tabs = connection[MONGODB_DB].tabs
 users = connection[MONGODB_DB].users
-documents = connection[MONGODB_DB].documents
+contents = connection[MONGODB_DB].contents
 
 @connection.register
 class User(Document):
@@ -52,8 +52,9 @@ class TabRelation(Document):
 class Content(Document):
     """Represents a url and its content"""
     structure = {
-            'url': unicode,
+            'url': str,
             'content': unicode
     }
 
+    authorized_types = Document.authorized_types + [str]
     use_dot_notation = True

@@ -22,12 +22,12 @@ from flaskext.wtf import (Form, SubmitField, TextField,
         PasswordField, ValidationError, Required, EqualTo)
 
 # app imports
-from db import *
+from infuse.db import *
 
 # create the application, initialize stuff
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config.from_pyfile('settings.py')
+app.config.from_pyfile('infuse/settings.py')
 
 # forms
 class UserForm(Form):
