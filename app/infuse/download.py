@@ -3,13 +3,16 @@
 The results are stored in a temporary database "resources".
 """
 from urlparse import urlparse
-from urllib2 import urlopen
+import urllib2
 import contextlib
 import re
 import fnmatch
 
-from infuse.db import resources
-from infuse.settings import BLACKLIST
+import pika
+import chardet
+
+from db import resources
+from settings import BLACKLIST
 
 def is_downloaded(url):
     """Return if the url have already been downloaded or not.
@@ -18,6 +21,7 @@ def is_downloaded(url):
     """
     exists = resources.one({'url': url})
     return True if exists else False
+
 
 def is_blacklisted(url):
     """Return is the url is blacklisted or not.
@@ -40,6 +44,7 @@ def is_blacklisted(url):
             return True
     return False
 
+
 def download(url):
     """Download an url into a document.
 
@@ -50,15 +55,44 @@ def download(url):
     """
     # do not download if already downloaded or blacklisted
     if not is_blacklisted(url) and not is_downloaded(url):
-        with contextlib.closing(urlopen(url)) as file:
-            # read the content and store it into a resource document
-            resource = resources.Resource()
-            resource.url = url
-            resource.content = file.read()
-            resource.save()
+        try:
+            # 5s is agressive but we need to process tons of urls
+            with contextlib.closing(urllib2.urlopen(url, timeout=5)) as file:
+                # read the content and store it into a resource document
+                resource = resources.Resource.get_or_create(unicode(url))
+                content = file.read()
+                charset = chardet.detect(content)
+                if 'encoding' in charset and charset['encoding']:
+                    content = content.decode(charset['encoding'])
+                    resource.content = content.encode('UTF-8')
+                    resource.processed = True
+                    resource.save()
+                    # print "saved %s" % resource.url
+                else:
+                    # skip this one
+                    blacklist_url(url)
+
+        except urllib2.URLError:
+            # TODO mark it as unusable, delete related views
+            blacklist_url(url)
+
+def blacklist_url(url):
+    print "blacklist %s" % url
 
 def main():
-    pass
+    """Listen for events on the queue and download them"""
 
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+            host='localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='download_resource', durable=True)
+
+    print ' [*] Waiting for messages. To exit press CTRL+C'
+    def callback(ch, method, properties, body):
+        download(body)
+
+    channel.basic_consume(callback, queue='download_resource', no_ack=True)
+    channel.start_consuming()
+ 
 if __name__ == '__main__':
     main()

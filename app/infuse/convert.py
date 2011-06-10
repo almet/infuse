@@ -12,10 +12,19 @@ the mongodb server.
 """
 
 import datetime
+
+from progressbar import ProgressBar
+import pika
+from pika.adapters import SelectConnection
+
 import db
+import download
 
 STARTERS = ["ready", "activate"]
 ENDERS = ["deactivate", "close"]
+
+connection = None
+channel = None
 
 class TemporaryView(object):
     def __init__(self):
@@ -78,19 +87,20 @@ class TemporaryView(object):
         res.save()
 
 
-def extract_views():
+def extract_views(frame):
     """Extract information about the resources views.
 
     Reads the information from the Events collection (the raw information taken 
     directly from the browsers) and convert it into something usable in the views 
-    collection."""
+    collection.
+    """
     def _mark_as_processed(event):
         if event:
             event['processed'] = True
             event.save()
-    
-    
-    for id in db.events.distinct("tab_id"):
+
+    progress = ProgressBar()
+    for id in progress(db.events.distinct("tab_id")):
         # get all the events relative to this tab
         events = db.events.Event.find({"tab_id": id}).sort("timestamp")
        
@@ -118,13 +128,21 @@ def extract_views():
 
             if view.finished:
                 # save the event in the db
-                # print("the resource %s have been viewed for %s seconds, the timestamp is %s" % (view.event['url'], view.duration(), view.event['timestamp']))
                 view.save()
                 view.reset()
+                channel.basic_publish(exchange='',
+                                      routing_key="download_resource",
+                                      body=event['url'],
+                                      properties=pika.BasicProperties(
+                                          content_type="text/plain",
+                                          delivery_mode=1))
 
                 # mark the two events as processed
                 _mark_as_processed(view.event)
                 _mark_as_processed(event)
+
+    # Close our connection
+    connection.close()
 
 
 def reset():
@@ -138,22 +156,30 @@ def reset():
     db.resources.drop()
     db.views.drop()
 
+#reset()
+def main():
+    global connection
+    global channel
 
-def summarize():
-    """Summarize all the information and put them in a document containing information
-    about:
+    def on_connected(connection):
+        pika.log.info("demo_send: Connected to RabbitMQ")
+        connection.channel(on_channel_open)
 
-        - The URL
-        - The user
-        - The number of views for this resource for this user
-        - The overall view duration
-        - The geolocations for those views
-        - The time (period of the day, day of the week)
+    def on_channel_open(channel_):
+        global channel
+        channel = channel_
+        pika.log.info("demo_send: Received our Channel")
+        channel.queue_declare(queue="download_resource", durable=True,
+                              exclusive=False, auto_delete=False,
+                              callback=extract_views)
 
-    This is only based on views. The content is not downloaded in this document but
-    rather in a resource document to proceed. (Which is done in the download 
-    module).
-    """
+    parameters = pika.ConnectionParameters("localhost")
+    connection = SelectConnection(parameters, on_connected)
 
-reset()
-#extract_views()
+    try:
+        connection.ioloop.start()
+    except KeyboardInterrupt:
+        connection.close()
+        connection.ioloop.start()
+
+main()

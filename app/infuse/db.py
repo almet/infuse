@@ -57,7 +57,7 @@ class Resource(Document):
     """Represents a url and its content"""
     structure = {
             'url': unicode,
-            'content': unicode,
+            'content': str,
             'parents': list,
             'processed': bool,
             'date': datetime.datetime,
@@ -82,7 +82,6 @@ class Resource(Document):
         if not resource:
             resource = resources.Resource()
             resource.url = url
-            resource.processed = False
 
         return resource
 

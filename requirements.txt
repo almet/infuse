@@ -7,3 +7,4 @@ anyjson==0.3.1
 mongokit==0.6
 pymongo==1.11
 gunicorn
+progressbar
