@@ -1,6 +1,6 @@
 """Download a web content if not already downloaded.
 
-The results are stored in a temporary database "contents".
+The results are stored in a temporary database "resources".
 """
 from urlparse import urlparse
 from urllib2 import urlopen
@@ -8,7 +8,7 @@ import contextlib
 import re
 import fnmatch
 
-from infuse.db import contents
+from infuse.db import resources
 from infuse.settings import BLACKLIST
 
 def is_downloaded(url):
@@ -16,7 +16,7 @@ def is_downloaded(url):
 
     :param url: the url to check
     """
-    exists = contents.one({'url': url})
+    exists = resources.one({'url': url})
     return True if exists else False
 
 def is_blacklisted(url):
@@ -51,11 +51,11 @@ def download(url):
     # do not download if already downloaded or blacklisted
     if not is_blacklisted(url) and not is_downloaded(url):
         with contextlib.closing(urlopen(url)) as file:
-            # read the content and store it into a content document
-            content = contents.Content()
-            content.url = url
-            content.content = file.read()
-            content.save()
+            # read the content and store it into a resource document
+            resource = resources.Resource()
+            resource.url = url
+            resource.content = file.read()
+            resource.save()
 
 def main():
     pass
