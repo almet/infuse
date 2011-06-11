@@ -4,6 +4,8 @@
     <title>Infuse</title>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style/main.css') }}">
     <meta charset=utf-8>
+    {% block meta %}
+    {% endblock %}
 </head>
 <body>
     <h1><a href="{{ url_for('index') }}" />*Infuse !</h1></a>

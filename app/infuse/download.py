@@ -64,10 +64,9 @@ def download(url):
                 charset = chardet.detect(content)
                 if 'encoding' in charset and charset['encoding']:
                     content = content.decode(charset['encoding'])
-                    resource.content = content.encode('UTF-8')
                     resource.processed = True
                     resource.save()
-                    # print "saved %s" % resource.url
+                    print "saved %s" % resource.url
                 else:
                     # skip this one
                     blacklist_url(url)

@@ -53,29 +53,29 @@ class TemporaryView(object):
         view.weekday = dt.weekday()
 
         if dt.hour <= 2:
-            daytime = "0-3"
+            daytime = u"0-3"
         elif dt.hour <= 4:
-            daytime = "3-5"
+            daytime = u"3-5"
         elif dt.hour <= 6:
-            daytime = "5-7"
+            daytime = u"5-7"
         elif dt.hour <= 8:
-            daytime = "7-9"
+            daytime = u"7-9"
         elif dt.hour <= 10:
-            daytime = "9-11"
+            daytime = u"9-11"
         elif dt.hour <= 12:
-            daytime = "11-13"
+            daytime = u"11-13"
         elif dt.hour <= 14:
-            daytime = "13-15"
+            daytime = u"13-15"
         elif dt.hour <= 16:
-            daytime = "15-17"
+            daytime = u"15-17"
         elif dt.hour <= 18:
-            daytime = "17-19"
+            daytime = u"17-19"
         elif dt.hour <= 20:
-            daytime = "19-21"
+            daytime = u"19-21"
         elif dt.hour <= 22:
-            daytime = "21-23"
+            daytime = u"21-23"
         else:
-            daytime = "23-24"
+            daytime = u"23-24"
 
         view.daytime = daytime
         view.save()
@@ -183,3 +183,4 @@ def main():
         connection.ioloop.start()
 
 main()
+# reset()

@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block meta %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script language="javascript">
+        $(document).ready(function(){
+            $("#feedback a").click(function(){
+                var li = $(this).parent();
+                var url = li.attr('url');
+
+                // on click send a post ajax request to the server and delete this node
+                $.ajax({
+                  type: 'POST',
+                  url: "{{ url_for("post_feedback") }}",
+                  data: {
+                    feedback: $(this).attr('action'),
+                    url: url
+                  },
+                  success: function(){
+                    li.slideUp();
+                  }
+                });
+                return false;
+            });
+        });
+    
+    </script>
+{% endblock %}
+{% block content %}
+<h2>Feedback !</h2>
+<p>In order to provide accurate recommendations, the system need to be trained with your appreciations about the websites you've visited. 
+You don't need to provide feedback for each of those websites but any answer will be valuable. Thanks !</p>
+
+<ul id="feedback">
+    {% for url in urls %}
+    <li url="{{ url }}"><a action="useful" href="#">useful</a>, <a action="useless" href="#">useless</a> {{ url }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

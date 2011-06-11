@@ -57,13 +57,13 @@ class Resource(Document):
     """Represents a url and its content"""
     structure = {
             'url': unicode,
-            'content': str,
+            'content': unicode,
             'parents': list,
             'processed': bool,
             'date': datetime.datetime,
     }
 
-    authorized_types = Document.authorized_types + [str]
+    authorized_types = Document.authorized_types 
     default_values = {'processed': False, 'parents': [], 
             'date': datetime.datetime.now()}
     use_dot_notation = True
@@ -93,10 +93,12 @@ class View(Document):
             'user': User,
             'duration': int, 
             'location': list,
-            'timestamp': int,
-            'daytime': str,
+            'timestamp': long,
+            'daytime': unicode,
             'weekday': int,
+            'feedback': unicode,
     }
 
-    authorized_types = Document.authorized_types + [str]
+    default_values = {'feedback': u"none"}
+    authorized_types = Document.authorized_types
     use_dot_notation = True

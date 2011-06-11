@@ -160,6 +160,33 @@ def add_tabrelation(user):
     return "relation added"
 
 
+@app.route("/feedback")
+def feedback():
+    """List all the resources mapped to this user, with a possibility to tell that
+    the resources have been useful or not
+    """
+
+    # get all the resources for a particular user, that have not already been marked
+    urls = views.View.find({"user.username": "alexis", "feedback": "none"}).distinct("url")
+    return render_template("feedback.html", urls=urls)
+
+@app.route("/feedback", methods=["POST"])
+def post_feedback():
+    """Record the feedback from the user"""
+
+    # check that the user is identified
+
+    # add the feedback
+    url = request.form['url']
+    feedback = request.form['feedback']
+
+    # get all the views from this user and this url
+    for view in views.View.find({"user.username": "alexis", "url": url}):
+        view.feedback = feedback
+        view.save()
+
+    return "ok"
+
 @app.route("/debug")
 def debug():
     """Only used for debug purposes. This will not work on the production server.
