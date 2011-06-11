@@ -36,6 +36,27 @@ extract this information. This means:
 * Extract text metrics from texts, idealy subjects / tag of words
 * Transform opening / closing information to viewing sequences.
 
+Those steps are done in the following scripts:
+
+* Gathering the text of the HTML resources + extracting metrics is done in the
+  infuse.download module. It uses a python/java bridge to use a java tool able
+  to transform HTML content into text content.
+  If you run download.py a queue will listen for new urls to retrieve
+  / transform / extract.
+* Converting the events that fired up on the browser is done in the
+  infuse.convert module. Each time a new resource is detected, it is sent
+  through the queue to the download module.
+
+Here is a simple scheme explaining the overall process::
+
+       Browser ---------------------> Server
+                                        |
+                          ---------> MongoDB <-----------
+                          |                             |
+     Boilerpipe <--- Download <----- RabbitMQ <--- Convert events
+       (java)        resources                        to views
+   
+
 Profile extraction
 ==================
 
@@ -51,7 +72,12 @@ Cluster profiles together.
 Links ranking
 =============
 
-Given a number of heuristics, rank *the visited items*
+Given a number of heuristics, rank *the visited items*. An interface provides
+a way for users to give explicit feedback. As users are not forced to give
+feedback, this step is not mendatory, but will be proposed to them.
+
+It is possible to provide feedback by going through
+http://infuse.notmyidea.org/feedback/
 
 Ranking prediction
 ==================
