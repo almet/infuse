@@ -58,3 +58,16 @@ Ranking prediction
 
 Uses collaborative filtering techniques to predict the rankings of unknown
 items in the profiles clusters.
+
+
+Installation
+============
+
+Most of the dependencies can be installed automatically using the following
+command::
+
+    $ pip install -r requirements.txt
+
+However, it will be needed to install manually mongodb (the server), rabbitmq
+(the queue manager) and jpype (a python/java bridge). Similarly, you will need
+to install numpy before running `pip install` as `scikits.learn` depends on it.
