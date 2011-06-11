@@ -9,10 +9,16 @@ import re
 import fnmatch
 
 import pika
+from pika.adapters import SelectConnection
 import chardet
 
 from db import resources
 from settings import BLACKLIST
+import boilerpipe
+
+# init queue
+connection = None
+channel = None
 
 def is_downloaded(url):
     """Return if the url have already been downloaded or not.
@@ -55,43 +61,68 @@ def download(url):
     """
     # do not download if already downloaded or blacklisted
     if not is_blacklisted(url) and not is_downloaded(url):
+        resource = resources.Resource.get_or_create(unicode(url))
         try:
             # 5s is agressive but we need to process tons of urls
             with contextlib.closing(urllib2.urlopen(url, timeout=5)) as file:
                 # read the content and store it into a resource document
-                resource = resources.Resource.get_or_create(unicode(url))
                 content = file.read()
                 charset = chardet.detect(content)
                 if 'encoding' in charset and charset['encoding']:
                     content = content.decode(charset['encoding'])
                     resource.processed = True
-                    resource.save()
+                    resource.content = boilerpipe.transform(content)
                     print "saved %s" % resource.url
                 else:
                     # skip this one
-                    blacklist_url(url)
+                    blacklist(resource)
 
         except urllib2.URLError:
             # TODO mark it as unusable, delete related views
-            blacklist_url(url)
+            blacklist(resource)
+        resource.save()
 
-def blacklist_url(url):
-    print "blacklist %s" % url
+def blacklist(resource):
+    print "blacklist %s" % resource.url
+    resource.processed = True
+    resource.blacklisted = True
 
 def main():
     """Listen for events on the queue and download them"""
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='localhost'))
-    channel = connection.channel()
-    channel.queue_declare(queue='download_resource', durable=True)
+    global connection
+    global channel
 
-    print ' [*] Waiting for messages. To exit press CTRL+C'
-    def callback(ch, method, properties, body):
+    def on_connected(connection):
+        connection.channel(on_channel_open)
+
+    def on_channel_open(channel_):
+        global channel
+        channel = channel_
+        channel.queue_declare(queue="download_resource", durable=True,
+                              exclusive=False, auto_delete=False,
+                              callback=on_queue_declared)
+
+    def on_queue_declared(frame):
+        channel.basic_consume(handle_delivery, queue='download_resource')
+        print ' [*] Waiting for messages. To exit press CTRL+C'
+
+    def handle_delivery(channel, method_frame, header_frame, body):
         download(body)
+        channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
-    channel.basic_consume(callback, queue='download_resource', no_ack=True)
-    channel.start_consuming()
+    parameters = pika.ConnectionParameters("localhost")
+    connection = SelectConnection(parameters, on_connected)
+
+    # initialise the JVM
+    boilerpipe.start_jvm()
+
+    try:
+        connection.ioloop.start()
+    except KeyboardInterrupt:
+        connection.close()
+        connection.ioloop.start()
+        boilerpipe.stop_jvm()
  
 if __name__ == '__main__':
     main()

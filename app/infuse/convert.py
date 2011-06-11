@@ -12,6 +12,7 @@ the mongodb server.
 """
 
 import datetime
+import sys
 
 from progressbar import ProgressBar
 import pika
@@ -46,7 +47,7 @@ class TemporaryView(object):
         view.user = self.event['user']
         view.url = self.event['url']
         view.duration = self.duration()
-        view.timestamp = int(self.event['timestamp'])
+        view.timestamp = long(self.event['timestamp'])
         
         # compute the time of day and the day of week
         dt = datetime.datetime.fromtimestamp(int(self.event['timestamp'])/1000)
@@ -149,6 +150,7 @@ def reset():
     """Remove all the resources/views and mark all the events as not processed.
 
     This function is mainly used for test purposes"""
+    print "remove all the resources / views and mark all the events as not processed"
     for event in db.events.Event.find({'processed': True}):
         event.processed = False
         event.save()
@@ -156,31 +158,30 @@ def reset():
     db.resources.drop()
     db.views.drop()
 
-#reset()
 def main():
-    global connection
-    global channel
-
-    def on_connected(connection):
-        pika.log.info("demo_send: Connected to RabbitMQ")
-        connection.channel(on_channel_open)
-
-    def on_channel_open(channel_):
+    if len(sys.argv) > 1 and sys.argv[1] == "reset":
+        reset()
+    else:
+        global connection
         global channel
-        channel = channel_
-        pika.log.info("demo_send: Received our Channel")
-        channel.queue_declare(queue="download_resource", durable=True,
-                              exclusive=False, auto_delete=False,
-                              callback=extract_views)
 
-    parameters = pika.ConnectionParameters("localhost")
-    connection = SelectConnection(parameters, on_connected)
+        def on_connected(connection):
+            connection.channel(on_channel_open)
 
-    try:
-        connection.ioloop.start()
-    except KeyboardInterrupt:
-        connection.close()
-        connection.ioloop.start()
+        def on_channel_open(channel_):
+            global channel
+            channel = channel_
+            channel.queue_declare(queue="download_resource", durable=True,
+                                  exclusive=False, auto_delete=False,
+                                  callback=extract_views)
+
+        parameters = pika.ConnectionParameters("localhost")
+        connection = SelectConnection(parameters, on_connected)
+
+        try:
+            connection.ioloop.start()
+        except KeyboardInterrupt:
+            connection.close()
+            connection.ioloop.start()
 
 main()
-# reset()
