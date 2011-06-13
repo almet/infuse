@@ -15,8 +15,6 @@ import datetime
 import sys
 
 from progressbar import ProgressBar
-import pika
-from pika.adapters import SelectConnection
 
 import db
 import download
@@ -81,14 +79,14 @@ class TemporaryView(object):
         view.daytime = daytime
         view.save()
 
-        # does a resource with this url exist ? if not, create one
+        #does a resource with this url exist ? if not, create one
         res = db.Resource.get_or_create(self.event['url'])
         if self.parent and self.parent not in res.parents:
             res.parents.append(self.parent)
         res.save()
 
 
-def extract_views(frame):
+def extract_views():
     """Extract information about the resources views.
 
     Reads the information from the Events collection (the raw information taken 
@@ -131,27 +129,18 @@ def extract_views(frame):
                 # save the event in the db
                 view.save()
                 view.reset()
-                channel.basic_publish(exchange='',
-                                      routing_key="download_resource",
-                                      body=event['url'],
-                                      properties=pika.BasicProperties(
-                                          content_type="text/plain",
-                                          delivery_mode=1))
 
                 # mark the two events as processed
                 _mark_as_processed(view.event)
                 _mark_as_processed(event)
-
-    # Close our connection
-    connection.close()
 
 
 def reset():
     """Remove all the resources/views and mark all the events as not processed.
 
     This function is mainly used for test purposes"""
-    print "remove all the resources / views and mark all the events as not processed"
-    for event in db.events.Event.find({'processed': True}):
+    progress = ProgressBar()
+    for event in progress(list(db.events.Event.find({'processed': True}))):
         event.processed = False
         event.save()
 
@@ -162,26 +151,6 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "reset":
         reset()
     else:
-        global connection
-        global channel
-
-        def on_connected(connection):
-            connection.channel(on_channel_open)
-
-        def on_channel_open(channel_):
-            global channel
-            channel = channel_
-            channel.queue_declare(queue="download_resource", durable=True,
-                                  exclusive=False, auto_delete=False,
-                                  callback=extract_views)
-
-        parameters = pika.ConnectionParameters("localhost")
-        connection = SelectConnection(parameters, on_connected)
-
-        try:
-            connection.ioloop.start()
-        except KeyboardInterrupt:
-            connection.close()
-            connection.ioloop.start()
+        extract_views()
 
 main()

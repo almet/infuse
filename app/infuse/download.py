@@ -7,25 +7,24 @@ import urllib2
 import contextlib
 import re
 import fnmatch
+from threading import Thread
+import sys
+import multiprocessing
 
-import pika
-from pika.adapters import SelectConnection
 import chardet
+from progressbar import ProgressBar
 
-from db import resources
-from settings import BLACKLIST
 import boilerpipe
-
-# init queue
-connection = None
-channel = None
+import db
+from settings import BLACKLIST
+from utils import split_list
 
 def is_downloaded(url):
     """Return if the url have already been downloaded or not.
 
     :param url: the url to check
     """
-    exists = resources.one({'url': url})
+    exists = db.resources.one({'url': url, 'processed': True})
     return True if exists else False
 
 
@@ -59,70 +58,81 @@ def download(url):
 
     :param url: the url to download
     """
+    content = ""
+
     # do not download if already downloaded or blacklisted
     if not is_blacklisted(url) and not is_downloaded(url):
-        resource = resources.Resource.get_or_create(unicode(url))
-        try:
-            # 5s is agressive but we need to process tons of urls
-            with contextlib.closing(urllib2.urlopen(url, timeout=5)) as file:
-                # read the content and store it into a resource document
-                content = file.read()
-                charset = chardet.detect(content)
-                if 'encoding' in charset and charset['encoding']:
-                    content = content.decode(charset['encoding'])
-                    resource.processed = True
-                    resource.content = boilerpipe.transform(content)
-                    print "saved %s" % resource.url
+        # 5s is agressive but we need to process tons of urls
+        with contextlib.closing(urllib2.urlopen(url, timeout=5)) as file:
+            # read the content and store it into a resource document
+            content = file.read()
+            charset = chardet.detect(content)
+            if 'encoding' in charset and charset['encoding']:
+                content = content.decode(charset['encoding'])
+            else:
+                content = ""
+
+    return content
+
+def reset_resources():
+    """Remove all the contents from the resources (+ unblacklist them).
+    """
+    progress = ProgressBar()
+    for res in progress(list(db.resources.Resource.find())):
+        res.processed = False
+        res.blacklisted = False
+        res.content = None
+        res.save()
+
+def process_resources(threads):
+    """Download all the unprocessed resources
+    """
+    class Downloader(Thread):
+        def __init__(self, resources):
+            self.resources = resources
+            super(Downloader, self).__init__()
+
+        def run(self):
+            boilerpipe.jpype.attachThreadToJVM()
+            for res in self.resources:
+                try:
+                    content = download(res.url)
+                    content = boilerpipe.transform(content)
+                except:
+                    content = ""
+                if not content:
+                    res.blacklisted = True
+                    print "blacklisted %s" % res.url
                 else:
-                    # skip this one
-                    blacklist(resource)
+                    res.content = content
+                    print "downloaded %s" % res.url
+                res.processed = True
+                res.save()
 
-        except urllib2.URLError:
-            # TODO mark it as unusable, delete related views
-            blacklist(resource)
-        resource.save()
-
-def blacklist(resource):
-    print "blacklist %s" % resource.url
-    resource.processed = True
-    resource.blacklisted = True
-
-def main():
-    """Listen for events on the queue and download them"""
-
-    global connection
-    global channel
-
-    def on_connected(connection):
-        connection.channel(on_channel_open)
-
-    def on_channel_open(channel_):
-        global channel
-        channel = channel_
-        channel.queue_declare(queue="download_resource", durable=True,
-                              exclusive=False, auto_delete=False,
-                              callback=on_queue_declared)
-
-    def on_queue_declared(frame):
-        channel.basic_consume(handle_delivery, queue='download_resource')
-        print ' [*] Waiting for messages. To exit press CTRL+C'
-
-    def handle_delivery(channel, method_frame, header_frame, body):
-        download(body)
-        channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-
-    parameters = pika.ConnectionParameters("localhost")
-    connection = SelectConnection(parameters, on_connected)
+    if threads > multiprocessing.cpu_count():
+        threads = multiprocessing.cpu_count()
 
     # initialise the JVM
     boilerpipe.start_jvm()
+    resources = list(db.resources.Resource.find({'processed': False}))
 
-    try:
-        connection.ioloop.start()
-    except KeyboardInterrupt:
-        connection.close()
-        connection.ioloop.start()
-        boilerpipe.stop_jvm()
- 
+    print "starting to download %s urls using %s threads" % (len(resources), threads)
+    
+    # split the resource into the number of threads
+    resources = split_list(resources, threads)
+
+    # start the threads and pass them the resources to be processed
+    for i in range(threads):
+        d = Downloader(resources[i])
+        d.start()
+
+
+def main(reset=False):
+    if reset:
+        reset_resources() 
+    else:
+        process_resources(int(sys.argv[1]) if len(sys.argv) > 1 else 1)
+
+
 if __name__ == '__main__':
-    main()
+    main(reset=len(sys.argv) > 1 and sys.argv[1] == "reset")

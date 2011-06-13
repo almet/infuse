@@ -19,21 +19,21 @@ def fake_urlopen(*args, **kwargs):
 
     return FakeFile()
 
-class FakeContents(object):
+class FakeResource(object):
     items = []
 
-    class Content(object):
+    class Resource(object):
         def __init__(self):
             self.url = None
             self.content = None
 
         def save(self):
-            FakeContents.items.append(self)
+            FakeResource.items.append(self)
 
     def one(*args, **kwargs):
         return None
 
-fake_contents = FakeContents()
+fake_resource = FakeResource()
 
 # Here come the actual test cases
 class TestDownload(TestCase):
@@ -71,17 +71,11 @@ class TestDownload(TestCase):
         self.old_blacklist = download.BLACKLIST
         download.BLACKLIST = ['blacklisted', 'black-listed']
 
-        # and db.contents
-        self._old_contents = download.contents
-        download.contents = fake_contents
-
         # test that the content is downloaded
         try:
-            download.download("http://example.org/test")
-            self.assertEqual(len(fake_contents.items), 1)
-            self.assertEqual(fake_contents.items[0].content, "this is the content")
+            content = download.download("http://example.org/test")
+            self.assertEqual(content, "this is the content")
         finally:
             # restore the monkey patched callables
             download.urlopen = self._old_urlopen
-            download.contents = self._old_contents
             download.BLACKLIST = self.old_blacklist
