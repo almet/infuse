@@ -61,11 +61,12 @@ class Resource(Document):
             'parents': list,
             'processed': bool,
             'date': datetime.datetime,
+            'blacklisted': bool,
     }
 
     authorized_types = Document.authorized_types 
     default_values = {'processed': False, 'parents': [], 
-            'date': datetime.datetime.now()}
+            'date': datetime.datetime.now(), 'blacklisted': False}
     use_dot_notation = True
 
     @staticmethod
