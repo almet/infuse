@@ -95,7 +95,7 @@ class View(Document):
             'duration': int, 
             'location': list,
             'timestamp': long,
-            'daytime': unicode,
+            'daytime': int,
             'weekday': int,
             'feedback': unicode,
     }

@@ -55,6 +55,23 @@ Extract profiles from the different information gathered at this point: text
 subjects, browsing trees, geolocalisation. For each  user, determine the
 different possible profiles, using clustering techniques.
 
+One of the techniques used is to compute the TF/IDF (Term Frequency, Inverse
+Document Frequency matrix for each url) and to split the resources in
+N groups (where N is determined before running the clustering algorithm).
+
+Then, each user is attached to multiple profiles
+
+What is defining an user profile ?
+----------------------------------
+
+In order to extract different profiles from users, we can use, for each
+resource:
+
+* The period of the day the resource have been viewed
+* The location the view have been made
+* The topic of the visited webpage (using TF/IDF measures)
+
+Based on information about my browsing, it seems that 
 
 Links ranking
 =============

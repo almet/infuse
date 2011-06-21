@@ -74,15 +74,17 @@ def download(url):
 
     return content
 
-def reset_resources():
+def reset():
     """Remove all the contents from the resources (+ unblacklist them).
     """
     progress = ProgressBar()
-    for res in progress(list(db.resources.Resource.find())):
-        res.processed = False
-        res.blacklisted = False
-        res.content = None
-        res.save()
+    resources = list(db.resources.Resource.find())
+    if resources:
+        for res in progress(resources):
+            res.processed = False
+            res.blacklisted = False
+            res.content = None
+            res.save()
 
 def process_resources(threads):
     """Download all the unprocessed resources
@@ -116,7 +118,7 @@ def process_resources(threads):
     boilerpipe.start_jvm()
     resources = list(db.resources.Resource.find({'processed': False}))
 
-    print "starting to download %s urls using %s threads" % (len(resources), threads)
+    print "download %s urls using %s threads" % (len(resources), threads)
     
     # split the resource into the number of threads
     resources = split_list(resources, threads)
@@ -127,12 +129,12 @@ def process_resources(threads):
         d.start()
 
 
-def main(reset=False):
-    if reset:
-        reset_resources() 
+def main(r=False):
+    if r:
+        reset() 
     else:
         process_resources(int(sys.argv[1]) if len(sys.argv) > 1 else 1)
 
 
 if __name__ == '__main__':
-    main(reset=len(sys.argv) > 1 and sys.argv[1] == "reset")
+    main(r=len(sys.argv) > 1 and sys.argv[1] == "reset")

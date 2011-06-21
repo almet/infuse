@@ -14,7 +14,7 @@ the mongodb server.
 import datetime
 import sys
 
-from progressbar import ProgressBar
+from progressbar import ProgressBar, Bar, Percentage
 
 import db
 import download
@@ -50,33 +50,7 @@ class TemporaryView(object):
         # compute the time of day and the day of week
         dt = datetime.datetime.fromtimestamp(int(self.event['timestamp'])/1000)
         view.weekday = dt.weekday()
-
-        if dt.hour <= 2:
-            daytime = u"0-3"
-        elif dt.hour <= 4:
-            daytime = u"3-5"
-        elif dt.hour <= 6:
-            daytime = u"5-7"
-        elif dt.hour <= 8:
-            daytime = u"7-9"
-        elif dt.hour <= 10:
-            daytime = u"9-11"
-        elif dt.hour <= 12:
-            daytime = u"11-13"
-        elif dt.hour <= 14:
-            daytime = u"13-15"
-        elif dt.hour <= 16:
-            daytime = u"15-17"
-        elif dt.hour <= 18:
-            daytime = u"17-19"
-        elif dt.hour <= 20:
-            daytime = u"19-21"
-        elif dt.hour <= 22:
-            daytime = u"21-23"
-        else:
-            daytime = u"23-24"
-
-        view.daytime = daytime
+        view.daytime = dt.hour
         view.save()
 
         #does a resource with this url exist ? if not, create one
@@ -98,7 +72,7 @@ def extract_views():
             event['processed'] = True
             event.save()
 
-    progress = ProgressBar()
+    progress = ProgressBar(widgets=["converting events to views", Percentage(), Bar()])
     for id in progress(db.events.distinct("tab_id")):
         # get all the events relative to this tab
         events = db.events.Event.find({"tab_id": id}).sort("timestamp")
@@ -140,9 +114,11 @@ def reset():
 
     This function is mainly used for test purposes"""
     progress = ProgressBar()
-    for event in progress(list(db.events.Event.find({'processed': True}))):
-        event.processed = False
-        event.save()
+    events = list(db.events.Event.find({'processed': True}))
+    if events:
+        for event in progress(events):
+            event.processed = False
+            event.save()
 
     db.resources.drop()
     db.views.drop()
@@ -153,4 +129,5 @@ def main():
     else:
         extract_views()
 
-main()
+if __name__ == '__main__':
+    main()
