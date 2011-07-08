@@ -13,11 +13,14 @@ import multiprocessing
 
 import chardet
 from progressbar import ProgressBar
+import nltk
 
 import boilerpipe
 import db
 from settings import BLACKLIST
 from utils import split_list
+
+en_vocab = set(w.lower() for w in nltk.corpus.words.words())
 
 def is_downloaded(url):
     """Return if the url have already been downloaded or not.
@@ -102,6 +105,17 @@ def process_resources(threads):
                     content = boilerpipe.transform(content)
                 except:
                     content = ""
+
+                if content and len(content) >= 200:
+                    res.textual = True
+                    # determine the langage of this text
+                    text_vocab = set(w.lower() for w in content if w.lower().isalpha())
+                    unusual = text_vocab.difference(en_vocab)
+                    if len(unusual) > 2:
+                        print "non english text detected"
+                        content = ""
+
+                # we don't want documents of less that 25 chars
                 if not content:
                     res.blacklisted = True
                     print "blacklisted %s" % res.url

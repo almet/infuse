@@ -86,6 +86,10 @@ div.slide.title header h1 {
   color: #fff;
 }
 
+div.slide header h2 strong{
+    color: #fff;
+}
+
 div.slide blockquote p {
   color: #444;
   font-family: Georgia, serif;
@@ -104,12 +108,8 @@ div.slide.fullimage li {
 }
 
 div.slide.fullimage img {
-  max-width: 96%;
-  max-height: 78%;
-  border-radius: 4px;
-  /*-moz-box-shadow: 0px 7px 15px #aaa;
-  -webkit-box-shadow: 0px 7px 15px #aaa;
-  box-shadow: 0px 7px 15px #aaa;*/
+  max-height: 60%;
+  max-width: 90%;
 }
 
 div.slide p.cite {
@@ -118,10 +118,6 @@ div.slide p.cite {
 
 div.slide .smallest {
   font-size: 80%;
-}
-
-div.slide.bigbullet h3 {
-  font-size: 250%;
 }
 
 div.slide.bigbullet ul li {
@@ -134,6 +130,47 @@ div.slide.bigbullet ul li small {
   font-size: 50%;
 }
 
+div.slide.bigbullet table{
+    width: 90%
+}
+
+div.slide.bigbullet thead{
+    font-weight: bold;
+}
+
+div.slide.bigbullet img{
+    float: right;
+}
+
+div.slide.bigbullet p{
+    font-size: 240%;
+}
+
+div.slide.mediumbullet ul li {
+  font-size: 200%;
+}
+div.slide.mediumbullet ul li li {
+  font-size: 90%;
+}
+div.slide.mediumbullet ul li small {
+  font-size: 50%;
+}
+
+div.slide.mediumbullet table{
+    width: 90%
+}
+
+div.slide.mediumbullet thead{
+    font-weight: bold;
+}
+
+div.slide.mediumbullet img{
+    float: right;
+}
+
+div.slide.mediumbullet p{
+    font-size: 200%;
+}
 div.slide.centerquote section {
   min-height: 590px;
 }
@@ -183,4 +220,9 @@ p.cop strong {
 
 p.cop a {
   color: #ffe971;
+}
+
+aside.page_number {
+  bottom: 15px;
+  right: 20px;
 }
