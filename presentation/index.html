@@ -68,7 +68,7 @@
             </aside>
             
             <aside class="page_number">
-              1/35
+              1/33
             </aside>
           </footer>
         </div>
@@ -86,6 +86,7 @@
 <li>Making <strong>recommendations</strong></li>
 <li>For the <strong>web</strong></li>
 <li>Using the <strong>browsing context</strong></li>
+<li>Web recommender exists but none is using contextual information</li>
 </ul></section>
             
           </div>
@@ -96,7 +97,7 @@
             </aside>
             
             <aside class="page_number">
-              2/35
+              2/33
             </aside>
           </footer>
         </div>
@@ -124,7 +125,7 @@
             </aside>
             
             <aside class="page_number">
-              3/35
+              3/33
             </aside>
           </footer>
         </div>
@@ -153,7 +154,7 @@
             </aside>
             
             <aside class="page_number">
-              4/35
+              4/33
             </aside>
           </footer>
         </div>
@@ -177,7 +178,7 @@
             </aside>
             
             <aside class="page_number">
-              5/35
+              5/33
             </aside>
           </footer>
         </div>
@@ -201,31 +202,7 @@
             </aside>
             
             <aside class="page_number">
-              6/35
-            </aside>
-          </footer>
-        </div>
-      </div>
-      
-      <!-- slide source: slides/02_recommendation_systems.md -->
-      <div class="slide-wrapper">
-        <div class="slide fullimage">
-          <div class="inner">
-            
-            <header><h3>Hybrid systems</h3></header>
-            
-            
-            <section><p><img src="slides/images/hybrid.png" /></section>
-            
-          </div>
-          <footer>
-            
-            <aside class="source">
-              Source: <a href="slides/02_recommendation_systems.md">slides/02_recommendation_systems.md</a>
-            </aside>
-            
-            <aside class="page_number">
-              7/35
+              6/33
             </aside>
           </footer>
         </div>
@@ -247,7 +224,7 @@
             </aside>
             
             <aside class="page_number">
-              8/35
+              7/33
             </aside>
           </footer>
         </div>
@@ -263,8 +240,8 @@
             
             <section><ul>
 <li>Hybrid</li>
-<li>Comparing user <strong>profiles</strong> rather than directly users</li>
-<li>Try to be less intrusive</li>
+<li>Compares user <strong>profiles</strong> rather than directly users</li>
+<li>Tries to be as unintrusive as possible</li>
 </ul></section>
             
           </div>
@@ -275,7 +252,7 @@
             </aside>
             
             <aside class="page_number">
-              9/35
+              8/33
             </aside>
           </footer>
         </div>
@@ -299,7 +276,7 @@
             </aside>
             
             <aside class="page_number">
-              10/35
+              9/33
             </aside>
           </footer>
         </div>
@@ -315,9 +292,9 @@
             
             <section><ul>
 <li>Usage (number of views)</li>
-<li>Content (text content) → removing the un-needed data</li>
-<li>Session (tabs opened + navigation)</li>
-<li>Mission identification</li>
+<li>Content (text content) → removing the useless data</li>
+<li>Navigation flow</li>
+<li>What is the user goal while browsing?</li>
 <li>Location</li>
 <li>Time (day of the week, period of the month, time of the day)</li>
 </ul></section>
@@ -330,7 +307,7 @@
             </aside>
             
             <aside class="page_number">
-              11/35
+              10/33
             </aside>
           </footer>
         </div>
@@ -348,7 +325,7 @@
 <ul>
 <li><strong>25</strong> registered users, <strong>12</strong> sending data regularly</li>
 <li><strong>95180</strong> events triggered and saved</li>
-<li><strong>8972</strong> web pages viewed and scrapped by the system</li>
+<li><strong>8972</strong> web pages viewed and downloaded by the system</li>
 </ul></section>
             
           </div>
@@ -359,7 +336,7 @@
             </aside>
             
             <aside class="page_number">
-              12/35
+              11/33
             </aside>
           </footer>
         </div>
@@ -370,7 +347,7 @@
         <div class="slide title">
           <div class="inner">
             
-            <header><h1>How to determine profiles / clusters</h1></header>
+            <header><h1>Clustering data</h1></header>
             
             
           </div>
@@ -381,7 +358,7 @@
             </aside>
             
             <aside class="page_number">
-              13/35
+              12/33
             </aside>
           </footer>
         </div>
@@ -392,12 +369,13 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h3>Possibilities</h3></header>
+            <header><h3>Profiles</h3></header>
             
             
             <section><ul>
-<li>Text based (TF-IDF, Topic extraction)</li>
-<li>Using the <strong>browsing context</strong></li>
+<li>Each user is considered to have a number of profiles</li>
+<li>Could be topics, time windows, locations, etc.</li>
+<li><strong>How do we find them ?</strong></li>
 </ul></section>
             
           </div>
@@ -408,7 +386,31 @@
             </aside>
             
             <aside class="page_number">
-              14/35
+              13/33
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: slides/04_profiles.md -->
+      <div class="slide-wrapper">
+        <div class="slide fullimage">
+          <div class="inner">
+            
+            <header><h3>Overview</h3></header>
+            
+            
+            <section><p><img src="slides/images/overview-0.png" /></section>
+            
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="slides/04_profiles.md">slides/04_profiles.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              14/33
             </aside>
           </footer>
         </div>
@@ -419,10 +421,11 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h3>TF-IDF</h3></header>
+            <header><h3>TF-IDF, Weighting words</h3></header>
             
             
-            <section><ul>
+            <section><p><img src="slides/images/overview-weight.png" />
+<ul>
 <li><strong>T</strong>erm <strong>F</strong>requency - <strong>I</strong>nverse <strong>D</strong>ocument <strong>F</strong>requency</li>
 <li>Number of occurences of a word:<ul>
 <li>within the document</li>
@@ -440,7 +443,7 @@
             </aside>
             
             <aside class="page_number">
-              15/35
+              15/33
             </aside>
           </footer>
         </div>
@@ -451,43 +454,14 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h3>Topic extraction</h3></header>
+            <header><h3>How do we do</h3></header>
             
             
-            <section><ul>
-<li>Latent Dirichlet Allocation: get a list of topics (words) from a corpus</li>
-<li>Terminology extraction</li>
-<li><strong>the goal is to classify documents into a set of topics</strong></li>
-</ul></section>
-            
-          </div>
-          <footer>
-            
-            <aside class="source">
-              Source: <a href="slides/04_profiles.md">slides/04_profiles.md</a>
-            </aside>
-            
-            <aside class="page_number">
-              16/35
-            </aside>
-          </footer>
-        </div>
-      </div>
-      
-      <!-- slide source: slides/04_profiles.md -->
-      <div class="slide-wrapper">
-        <div class="slide bigbullet">
-          <div class="inner">
-            
-            <header><h3>Using the browsing context</h3></header>
-            
-            
-            <section><p><img src="slides/images/resource-views.png" />
+            <section><p><img src="slides/images/overview-weight.png" />
 <ul>
-<li>Location</li>
-<li>Time of the day</li>
-<li>Day of the week</li>
-<li>Related tabs</li>
+<li>Get the vector of words for a sparse-enough matrix (get documents from outside)</li>
+<li>Reducing the Matrix dimensions (PCA)</li>
+<li>Fit the corpus into this transformed vector</li>
 </ul></section>
             
           </div>
@@ -498,7 +472,7 @@
             </aside>
             
             <aside class="page_number">
-              17/35
+              16/33
             </aside>
           </footer>
         </div>
@@ -509,43 +483,13 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h3>Flattening data</h3></header>
+            <header><h3>Topic extraction (LDA)</h3></header>
             
             
-            <section><ul>
-<li>Total number of views per resource</li>
-<li>Total time spent viewing the resource</li>
-<li>For other metrics, possibility to extract fix metrics (average, mean,
-  median, variance, standard deviation).</li>
-</ul></section>
-            
-          </div>
-          <footer>
-            
-            <aside class="source">
-              Source: <a href="slides/04_profiles.md">slides/04_profiles.md</a>
-            </aside>
-            
-            <aside class="page_number">
-              18/35
-            </aside>
-          </footer>
-        </div>
-      </div>
-      
-      <!-- slide source: slides/04_profiles.md -->
-      <div class="slide-wrapper">
-        <div class="slide bigbullet">
-          <div class="inner">
-            
-            <header><h3>Location</h3></header>
-            
-            
-            <section><p>Different approaches:</p>
+            <section><p><img src="slides/images/overview-lda.png" />
 <ul>
-<li>Getting a list of the 100 biggest cities and having a feature for 
-  each city representing the distance to it</li>
-<li>Trying to group the exact matches</li>
+<li>Latent Dirichlet Allocation (LDA): get a list of topics (words) from a corpus</li>
+<li><strong>the goal is to classify documents into a set of topics</strong> (this is clustering)</li>
 </ul></section>
             
           </div>
@@ -556,7 +500,7 @@
             </aside>
             
             <aside class="page_number">
-              19/35
+              17/33
             </aside>
           </footer>
         </div>
@@ -570,7 +514,8 @@
             <header><h3>K-Means</h3></header>
             
             
-            <section><ul>
+            <section><p><img src="slides/images/overview-kmeans.png" />
+<ul>
 <li>Choose the number of clusters</li>
 <li>Random centers</li>
 <li>Assign each point to the nearest cluster</li>
@@ -586,7 +531,7 @@
             </aside>
             
             <aside class="page_number">
-              20/35
+              18/33
             </aside>
           </footer>
         </div>
@@ -610,31 +555,7 @@
             </aside>
             
             <aside class="page_number">
-              21/35
-            </aside>
-          </footer>
-        </div>
-      </div>
-      
-      <!-- slide source: slides/04_profiles.md -->
-      <div class="slide-wrapper">
-        <div class="slide fullimage">
-          <div class="inner">
-            
-            <header><h3>kD-trees</h3></header>
-            
-            
-            <section><p><img src="slides/images/kd-tree.png" /></section>
-            
-          </div>
-          <footer>
-            
-            <aside class="source">
-              Source: <a href="slides/04_profiles.md">slides/04_profiles.md</a>
-            </aside>
-            
-            <aside class="page_number">
-              22/35
+              19/33
             </aside>
           </footer>
         </div>
@@ -645,14 +566,16 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h3>Comparison / Evaluation</h3></header>
+            <header><h3>Using the browsing context</h3></header>
             
             
-            <section><ul>
-<li>High similarity within the cluster, Low between clusters</li>
-<li>Manual*</li>
-<li>Memory print</li>
-<li>CPU usage</li>
+            <section><p><img src="slides/images/overview-context.png" />
+<ul>
+<li>Each website have a number of visits (you visit a website in different contexts)</li>
+<li>Location</li>
+<li>Time of the day</li>
+<li>Day of the week</li>
+<li>Related tabs</li>
 </ul></section>
             
           </div>
@@ -663,7 +586,40 @@
             </aside>
             
             <aside class="page_number">
-              23/35
+              20/33
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: slides/04_profiles.md -->
+      <div class="slide-wrapper">
+        <div class="slide bigbullet">
+          <div class="inner">
+            
+            <header><h3>Flattening data</h3></header>
+            
+            
+            <section><p><img src="slides/images/overview-flatten.png" />
+<ul>
+<li>Data needs to be flat to feed clustering algorithms</li>
+<li>Total number of views per resource</li>
+<li>Total time spent viewing the resource</li>
+<li>Location: Getting a list of the 100 biggest cities and having a feature for 
+  each city representing the distance to it</li>
+<li>For other features, possibility to extract fixed metrics (average, mean,
+  median, variance, standard deviation).</li>
+</ul></section>
+            
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="slides/04_profiles.md">slides/04_profiles.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              21/33
             </aside>
           </footer>
         </div>
@@ -677,8 +633,8 @@
             <header><h3>Putting it all together</h3></header>
             
             
-            <section><ul>
-<li>Different ways to make an hybrid recommender</li>
+            <section><p><img src="slides/images/overview-together.png" />
+<ul>
 <li>Context + Text data → Making a compound data set using vector spaces</li>
 <li>Making both predictions and selecting the better one depending the context</li>
 <li>Combining the predictions</li>
@@ -692,7 +648,7 @@
             </aside>
             
             <aside class="page_number">
-              24/35
+              22/33
             </aside>
           </footer>
         </div>
@@ -714,7 +670,40 @@
             </aside>
             
             <aside class="page_number">
-              25/35
+              23/33
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: slides/06_next.md -->
+      <div class="slide-wrapper">
+        <div class="slide bigbullet">
+          <div class="inner">
+            
+            <header><h2>Ranking views</h2></header>
+            
+            
+            <section><ul>
+<li><strong>Know if a user liked a view of a resource</strong></li>
+<li>Simple heuristics<ul>
+<li>a lot of time spent on the webpage → the user liked it</li>
+<li>the user came back to see this content → he liked it</li>
+</ul>
+</li>
+<li>Asking for explicit user feedback</li>
+<li>Asking users some feedback and infer the rest (using supervised learning)</li>
+</ul></section>
+            
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="slides/06_next.md">slides/06_next.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              24/33
             </aside>
           </footer>
         </div>
@@ -738,7 +727,7 @@
             </aside>
             
             <aside class="page_number">
-              26/35
+              25/33
             </aside>
           </footer>
         </div>
@@ -749,19 +738,15 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h2>Ranking views</h2></header>
+            <header><h2>A better option</h2></header>
             
             
-            <section><ul>
-<li>Simple heuristics<ul>
-<li>Time spent on the webpage each time</li>
-<li>Number of time the resource have been viewed</li>
-</ul>
-</li>
-<li>Asking for explicit user feedback</li>
-<li>Asking users some feedback and infer the rest (using supervised learning)</li>
-<li><strong>Getting recommendations</strong></li>
-</ul></section>
+            <section><ol>
+<li>Determine usage windows (timewise and location-wise)</li>
+<li>Cluster all the users together and find user groups (not profiles)</li>
+<li>Get the users in the same group and compute the similarity scores between users</li>
+<li>Get recommendations</li>
+</ol></section>
             
           </div>
           <footer>
@@ -771,7 +756,7 @@
             </aside>
             
             <aside class="page_number">
-              27/35
+              26/33
             </aside>
           </footer>
         </div>
@@ -793,7 +778,7 @@
             </aside>
             
             <aside class="page_number">
-              28/35
+              27/33
             </aside>
           </footer>
         </div>
@@ -810,8 +795,8 @@
             <section><ul>
 <li>Need a huge number of entries to be accurate; More than with a classic approach</li>
 <li>The ranking is made with heuristics (can be wrong ones)</li>
-<li>We can use the content-based approach with web <strong>pages</strong> not we <strong>apps</strong></li>
-<li>Clustering is expansive (time-wise)</li>
+<li>We can use the content-based approach with web <strong>pages</strong> not web <strong>applications</strong></li>
+<li>Clustering is expensive (time-wise)</li>
 </ul></section>
             
           </div>
@@ -822,7 +807,7 @@
             </aside>
             
             <aside class="page_number">
-              29/35
+              28/33
             </aside>
           </footer>
         </div>
@@ -839,8 +824,7 @@
             <section><ul>
 <li>The data is centralised (like Google, Facebook etc)</li>
 <li>Sensible data (locations, web pages)</li>
-<li>Wrong recommendations</li>
-<li>Serendipity</li>
+<li>Serendipity: user are not discovering new topics</li>
 </ul></section>
             
           </div>
@@ -851,7 +835,7 @@
             </aside>
             
             <aside class="page_number">
-              30/35
+              29/33
             </aside>
           </footer>
         </div>
@@ -868,6 +852,7 @@
             <section><ul>
 <li>It is possible to have text-based clusters to determine profiles</li>
 <li>The browsing data can be extracted to feed clustering algorithms</li>
+<li>The data contained in browsers can be extracted to feed a recommendation system</li>
 </ul>
 <!-- TODO --></section>
             
@@ -879,7 +864,7 @@
             </aside>
             
             <aside class="page_number">
-              31/35
+              30/33
             </aside>
           </footer>
         </div>
@@ -890,7 +875,7 @@
         <div class="slide bigbullet">
           <div class="inner">
             
-            <header><h2>Achievement</h2></header>
+            <header><h2>Achievements</h2></header>
             
             
             <section><ul>
@@ -912,59 +897,7 @@
             </aside>
             
             <aside class="page_number">
-              32/35
-            </aside>
-          </footer>
-        </div>
-      </div>
-      
-      <!-- slide source: slides/99_credits.md -->
-      <div class="slide-wrapper">
-        <div class="slide title">
-          <div class="inner">
-            
-            <header><h1>Credits</h1></header>
-            
-            
-          </div>
-          <footer>
-            
-            <aside class="source">
-              Source: <a href="slides/99_credits.md">slides/99_credits.md</a>
-            </aside>
-            
-            <aside class="page_number">
-              33/35
-            </aside>
-          </footer>
-        </div>
-      </div>
-      
-      <!-- slide source: slides/99_credits.md -->
-      <div class="slide-wrapper">
-        <div class="slide">
-          <div class="inner">
-            
-            <header><h2>Research</h2></header>
-            
-            
-            <section><ul>
-<li>Adomavicius, G., &amp; Tuzhilin, a. (2005). <strong>Toward the next generation of recommender systems: a survey of the state-of-the-art and possible extensions</strong>. IEEE Transactions on Knowledge and Data Engineering</li>
-<li>Balabanović, M., &amp; Shoham, Y. (1997). <strong>Fab: content-based, collaborative recommendation</strong>. Communications of the ACM, </li>
-<li>Dubroy, P., &amp; Balakrishnan, R. (2010). <strong>A study of tabbed browsing among mozilla firefox users</strong>. Proceedings of the 28th international conference on Human factors in computing systems </li>
-<li>Kohlschutter, C., Fankhauser, P., &amp; Nejdl, W. (2010). <strong>Boilerplate detection using shallow text features</strong>. Proceedings of the third ACM international conference on Web search and data mining </li>
-<li>Melville, P., Mooney, R. J., &amp; Nagarajan, R. (2002). <strong>Content-Boosted Collaborative Filtering for Improved Recommendations</strong>. Machine Learning, </li>
-</ul></section>
-            
-          </div>
-          <footer>
-            
-            <aside class="source">
-              Source: <a href="slides/99_credits.md">slides/99_credits.md</a>
-            </aside>
-            
-            <aside class="page_number">
-              34/35
+              31/33
             </aside>
           </footer>
         </div>
@@ -986,7 +919,36 @@
             </aside>
             
             <aside class="page_number">
-              35/35
+              32/33
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: slides/99_credits.md -->
+      <div class="slide-wrapper">
+        <div class="slide">
+          <div class="inner">
+            
+            <header><h2>Research</h2></header>
+            
+            
+            <section><p>Here are the main papers on the subject (but there is tons of them that are interesting and useful)
+<em>  Adomavicius, G., &amp; Tuzhilin, a. (2005). <strong>Toward the next generation of recommender systems: a survey of the state-of-the-art and possible extensions</strong>. IEEE Transactions on Knowledge and Data Engineering
+</em> Balabanović, M., &amp; Shoham, Y. (1997). <strong>Fab: content-based, collaborative recommendation</strong>. Communications of the ACM, 
+<em> Dubroy, P., &amp; Balakrishnan, R. (2010). <strong>A study of tabbed browsing among mozilla firefox users</strong>. Proceedings of the 28th international conference on Human factors in computing systems 
+ * Kohlschutter, C., Fankhauser, P., &amp; Nejdl, W. (2010). <strong>Boilerplate detection using shallow text features</strong>. Proceedings of the third ACM international conference on Web search and data mining 
+</em> Melville, P., Mooney, R. J., &amp; Nagarajan, R. (2002). <strong>Content-Boosted Collaborative Filtering for Improved Recommendations</strong>. Machine Learning, </p></section>
+            
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="slides/99_credits.md">slides/99_credits.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              33/33
             </aside>
           </footer>
         </div>
@@ -1023,105 +985,104 @@
         
       
       
-      <tr id="toc-row-8">
-        <th><a href="#slide8">Design choices</a></th>
-        <td><a href="#slide8">8</a></td>
+      <tr id="toc-row-7">
+        <th><a href="#slide7">Design choices</a></th>
+        <td><a href="#slide7">7</a></td>
       </tr>
       
         
-        <tr id="toc-row-9" class="sub">
-          <th><a href="#slide9"><strong>This</strong> recommendation system</a></th>
-          <td><a href="#slide9">9</a></td>
+        <tr id="toc-row-8" class="sub">
+          <th><a href="#slide8"><strong>This</strong> recommendation system</a></th>
+          <td><a href="#slide8">8</a></td>
+        </tr>
+        
+        <tr id="toc-row-10" class="sub">
+          <th><a href="#slide10">Information retrieval</a></th>
+          <td><a href="#slide10">10</a></td>
         </tr>
         
         <tr id="toc-row-11" class="sub">
-          <th><a href="#slide11">Information retrieval</a></th>
+          <th><a href="#slide11">Some statistics</a></th>
           <td><a href="#slide11">11</a></td>
         </tr>
         
-        <tr id="toc-row-12" class="sub">
-          <th><a href="#slide12">Some statistics</a></th>
-          <td><a href="#slide12">12</a></td>
+      
+      
+      <tr id="toc-row-12">
+        <th><a href="#slide12">Clustering data</a></th>
+        <td><a href="#slide12">12</a></td>
+      </tr>
+      
+        
+        <tr id="toc-row-19" class="sub">
+          <th><a href="#slide19">Text clusters</a></th>
+          <td><a href="#slide19">19</a></td>
         </tr>
         
       
       
-      <tr id="toc-row-13">
-        <th><a href="#slide13">How to determine profiles / clusters</a></th>
-        <td><a href="#slide13">13</a></td>
+      <tr id="toc-row-23">
+        <th><a href="#slide23">What's next ?</a></th>
+        <td><a href="#slide23">23</a></td>
       </tr>
       
         
-        <tr id="toc-row-21" class="sub">
-          <th><a href="#slide21">Text clusters</a></th>
-          <td><a href="#slide21">21</a></td>
+        <tr id="toc-row-24" class="sub">
+          <th><a href="#slide24">Ranking views</a></th>
+          <td><a href="#slide24">24</a></td>
         </tr>
         
-      
-      
-      <tr id="toc-row-25">
-        <th><a href="#slide25">What's next ?</a></th>
-        <td><a href="#slide25">25</a></td>
-      </tr>
-      
+        <tr id="toc-row-25" class="sub">
+          <th><a href="#slide25">Comparing profiles</a></th>
+          <td><a href="#slide25">25</a></td>
+        </tr>
         
         <tr id="toc-row-26" class="sub">
-          <th><a href="#slide26">Comparing profiles</a></th>
+          <th><a href="#slide26">A better option</a></th>
           <td><a href="#slide26">26</a></td>
         </tr>
         
-        <tr id="toc-row-27" class="sub">
-          <th><a href="#slide27">Ranking views</a></th>
-          <td><a href="#slide27">27</a></td>
-        </tr>
-        
       
       
-      <tr id="toc-row-28">
-        <th><a href="#slide28">Conclusions</a></th>
-        <td><a href="#slide28">28</a></td>
+      <tr id="toc-row-27">
+        <th><a href="#slide27">Conclusions</a></th>
+        <td><a href="#slide27">27</a></td>
       </tr>
       
         
+        <tr id="toc-row-28" class="sub">
+          <th><a href="#slide28">Limits</a></th>
+          <td><a href="#slide28">28</a></td>
+        </tr>
+        
         <tr id="toc-row-29" class="sub">
-          <th><a href="#slide29">Limits</a></th>
+          <th><a href="#slide29">Ethical issues</a></th>
           <td><a href="#slide29">29</a></td>
         </tr>
         
         <tr id="toc-row-30" class="sub">
-          <th><a href="#slide30">Ethical issues</a></th>
+          <th><a href="#slide30">Results</a></th>
           <td><a href="#slide30">30</a></td>
         </tr>
         
         <tr id="toc-row-31" class="sub">
-          <th><a href="#slide31">Results</a></th>
+          <th><a href="#slide31">Achievements</a></th>
           <td><a href="#slide31">31</a></td>
         </tr>
         
-        <tr id="toc-row-32" class="sub">
-          <th><a href="#slide32">Achievement</a></th>
-          <td><a href="#slide32">32</a></td>
-        </tr>
-        
       
       
-      <tr id="toc-row-33">
-        <th><a href="#slide33">Credits</a></th>
-        <td><a href="#slide33">33</a></td>
+      <tr id="toc-row-32">
+        <th><a href="#slide32">Questions ?</a></th>
+        <td><a href="#slide32">32</a></td>
       </tr>
       
         
-        <tr id="toc-row-34" class="sub">
-          <th><a href="#slide34">Research</a></th>
-          <td><a href="#slide34">34</a></td>
+        <tr id="toc-row-33" class="sub">
+          <th><a href="#slide33">Research</a></th>
+          <td><a href="#slide33">33</a></td>
         </tr>
         
-      
-      
-      <tr id="toc-row-35">
-        <th><a href="#slide35">Questions ?</a></th>
-        <td><a href="#slide35">35</a></td>
-      </tr>
       
       
     </table>

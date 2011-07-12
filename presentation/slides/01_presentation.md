@@ -11,6 +11,7 @@
 * Making **recommendations**
 * For the **web**
 * Using the **browsing context**
+* Web recommender exists but none is using contextual information
 
 ---
 

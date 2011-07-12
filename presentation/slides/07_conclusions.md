@@ -10,8 +10,8 @@
 
 * Need a huge number of entries to be accurate; More than with a classic approach
 * The ranking is made with heuristics (can be wrong ones)
-* We can use the content-based approach with web **pages** not we **apps**
-* Clustering is expansive (time-wise)
+* We can use the content-based approach with web **pages** not web **applications**
+* Clustering is expensive (time-wise)
 
 ---
 
@@ -21,8 +21,7 @@
 
 * The data is centralised (like Google, Facebook etc)
 * Sensible data (locations, web pages)
-* Wrong recommendations
-* Serendipity
+* Serendipity: user are not discovering new topics
 
 ---
 
@@ -32,12 +31,13 @@
 
 * It is possible to have text-based clusters to determine profiles
 * The browsing data can be extracted to feed clustering algorithms
+* The data contained in browsers can be extracted to feed a recommendation system
 
 <!-- TODO -->
 
 ---
 
-## Achievement
+## Achievements
 
 .fx: bigbullet
 

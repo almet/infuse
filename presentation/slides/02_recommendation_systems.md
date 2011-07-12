@@ -22,11 +22,3 @@
 .fx: fullimage
 
 ![](images/collaborative-filtering.png)
-
----
-
-### Hybrid systems
-
-.fx: fullimage
-
-![](images/hybrid.png)

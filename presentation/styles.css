@@ -120,13 +120,13 @@ div.slide .smallest {
   font-size: 80%;
 }
 
-div.slide.bigbullet ul li {
+div.slide.bigbullet ul li, div.slide.bigbullet ol li {
   font-size: 240%;
 }
-div.slide.bigbullet ul li li {
+div.slide.bigbullet ul li li, div.slide.bigbullet ol li li {
   font-size: 90%;
 }
-div.slide.bigbullet ul li small {
+div.slide.bigbullet ul li small, div.slide.bigbullet ol li small {
   font-size: 50%;
 }
 

@@ -9,8 +9,8 @@
 .fx: bigbullet
 
 * Hybrid
-* Comparing user **profiles** rather than directly users
-* Try to be less intrusive
+* Compares user **profiles** rather than directly users
+* Tries to be as unintrusive as possible
 
 ---
 
@@ -25,9 +25,9 @@
 .fx: bigbullet
 
 * Usage (number of views)
-* Content (text content) → removing the un-needed data
-* Session (tabs opened + navigation)
-* Mission identification
+* Content (text content) → removing the useless data
+* Navigation flow
+* What is the user goal while browsing?
 * Location
 * Time (day of the week, period of the month, time of the day)
 
@@ -41,4 +41,4 @@ Since the end of May:
 
 * **25** registered users, **12** sending data regularly
 * **95180** events triggered and saved
-* **8972** web pages viewed and scrapped by the system
+* **8972** web pages viewed and downloaded by the system

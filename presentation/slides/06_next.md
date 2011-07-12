@@ -4,6 +4,19 @@
 
 ---
 
+## Ranking views
+
+.fx: bigbullet
+
+* **Know if a user liked a view of a resource**
+* Simple heuristics
+    * a lot of time spent on the webpage → the user liked it
+    * the user came back to see this content → he liked it
+* Asking for explicit user feedback
+* Asking users some feedback and infer the rest (using supervised learning)
+
+---
+
 ## Comparing profiles
 
 .fx: fullimage
@@ -12,13 +25,11 @@
 
 ---
 
-## Ranking views
+## A better option
 
 .fx: bigbullet
 
-* Simple heuristics
-    * Time spent on the webpage each time
-    * Number of time the resource have been viewed
-* Asking for explicit user feedback
-* Asking users some feedback and infer the rest (using supervised learning)
-* **Getting recommendations**
+1. Determine usage windows (timewise and location-wise)
+2. Cluster all the users together and find user groups (not profiles)
+3. Get the users in the same group and compute the similarity scores between users
+4. Get recommendations
