@@ -5,8 +5,70 @@ Here is the list of things to do:
     * explain why getting profiles is not a so good idea
     * explain why directly clustering users is a better idea.
     * Why not, explaining it with clusters that have been found
+
 * Using the LDA approach to find a list of topics. VW is a good candidate here
 * Creates an interface to ask user specific feedback, train a model with thoses and
   infer the rest
-* Find literature about clustering locations
 * How can I use the browsing flow ?
+
+Things to put in the report
+===========================
+
+* Justification about how to cluster locations (with the Kth biggest cities in the world)
+* Why not distributing the download of the webpages into the clients ?
+    * bandwidth problems
+    * can be less computational intensive on the server side
+    → is that really a problem ?
+* Find literature about clustering locations
+* How about using tabs ? Firefox paper
+* LDA → Paper, results !
+* Data retrieval, data extraction (how did I use boilerplate ?)
+* Add a part about the technology
+    * mongodb ? Why ?
+    * python, why ?
+    * flask, why ?
+    * numpy / scipy / scikits.learn
+
+The part about what I've done
+-----------------------------
+
+0. Overall structure
+    
+    Schema + explanations
+
+1. Data retrieval
+    What do we want to store?
+
+    a. The firefox plugin
+        * events
+        * authentication
+        * technology
+    b. The website
+        * authentication
+        * storing events in db
+
+2. Data transformation
+
+    The data needs to be transformed to feed clustering algorithms.
+
+    Explanation of the different techniques for the different features.
+
+3. Data clustering
+
+    a. Why? What's the goal?
+    b. How?
+        * Using text features
+        * Using other features
+    c. Results
+
+4. Ranking items
+
+    a. Which items?
+    b. Techniques to rank them
+    c. results
+
+5. Computing similarity scores
+
+6. Getting recommendations
+
+7. Conclusions
