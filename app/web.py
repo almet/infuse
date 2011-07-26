@@ -167,7 +167,10 @@ def feedback():
     """
 
     # get all the resources for a particular user, that have not already been marked
-    urls = views.View.find({"user.username": "alexis", "feedback": "none"}).distinct("url")
+    view_urls = views.find({"user.username": "alexis", "feedback": "none"}).distinct("url")
+    urls = resources.find({'url': {'$in': view_urls }, 
+            'blacklisted': False}).distinct("url")
+
     return render_template("feedback.html", urls=urls)
 
 @app.route("/feedback", methods=["POST"])

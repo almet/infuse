@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+from time import time
+
 def split_list(original_list, n):
     """Split a list in N equal-sized bits.
 
@@ -13,3 +16,9 @@ def split_list(original_list, n):
             final_list.append(original_list[i*bit_size:(i+1)*bit_size])
 
     return final_list
+
+@contextmanager
+def mesure(what):
+    t0 = time()
+    yield
+    print "%s performed in %s" % (what, time() - t0)

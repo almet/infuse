@@ -32,7 +32,14 @@ You don't need to provide feedback for each of those websites but any answer wil
 
 <ul id="feedback">
     {% for url in urls %}
-    <li url="{{ url }}"><a action="useful" href="#">useful</a>, <a action="useless" href="#">useless</a> {{ url }}</li>
+    <li url="{{ url }}">
+    <a action="5" href="#">5</a>
+    <a action="4" href="#">4</a>
+    <a action="3" href="#">3</a>
+    <a action="2" href="#">2</a>
+    <a action="1" href="#">1</a>
+    <a action="0" href="#">0</a>
+    {{ url }}</li>
 {% endfor %}
 </ul>
 {% endblock %}
