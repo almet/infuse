@@ -1,5 +1,12 @@
 Here is the list of things to do:
 
+* Get profiles for each user, using text [ok] and context [ok]. output graphics
+  about this [ok]
+* Compare the distribution using different initialisation params [ok]
+* Merge context and text profiles?
+* Compare the profiles: using euclidean distance: is it possible to compare the
+  profiles between them?
+
 * do not use user profiles, but users instead. This mean that I have to:
     * justify this choice
     * explain why getting profiles is not a so good idea
@@ -8,7 +15,7 @@ Here is the list of things to do:
 
 * Using the LDA approach to find a list of topics. VW is a good candidate here
 * Creates an interface to ask user specific feedback, train a model with thoses and
-  infer the rest
+  infer the rest [ok]
 * How can I use the browsing flow ?
 
 Things to put in the report

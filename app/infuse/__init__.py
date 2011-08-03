@@ -1,6 +1,6 @@
 import time
 
-import convert, download, profiles
+import convert, download
 
 def run_all(reset=False):
     """Run all the pipeline:
@@ -17,7 +17,6 @@ def run_all(reset=False):
     t0 = time.time()
     convert.extract_views()
     download.process_resources()
-    profiles.find_profiles_tfidf()
     print 'processed all the steps in %s' % (time.time() - t0)
 
 if __name__ == '__main__':

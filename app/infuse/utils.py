@@ -1,5 +1,5 @@
-from contextlib import contextmanager
 from time import time
+from contextlib import contextmanager
 
 def split_list(original_list, n):
     """Split a list in N equal-sized bits.
@@ -17,8 +17,20 @@ def split_list(original_list, n):
 
     return final_list
 
+
 @contextmanager
-def mesure(what):
+def mesure(what, print_f=None, **kwargs):
+    """Mesure the execution time of an operation. It should be used like this::
+
+        with mesure("Description of the operation"):
+            print "yeah"
+
+    :param what: the description of what is being mesured
+    :param print_f: a callable that will be called to display the messages
+    :param **kwargs: additional parameters to give to the callable
+    """
+    if not print_f:
+        print_f = lambda *x: sys.stdout.write(" ".join(map(str, x)))
     t0 = time()
     yield
-    print "%s performed in %s" % (what, time() - t0)
+    print_f("%s performed in %s" % (what, time() - t0), **kwargs)
