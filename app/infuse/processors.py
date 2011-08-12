@@ -1,10 +1,11 @@
-from itertools import cycle
-import sys
+import functools
 import os
 import pickle
-from time import time
+import sys
 from collections import defaultdict
-from functools import partial
+from datetime import datetime
+from itertools import cycle
+from time import time
 
 from progressbar import ProgressBar, Bar, Percentage
 from scikits.learn.feature_extraction.text import Vectorizer, TfidfTransformer
@@ -20,7 +21,6 @@ import pylab as pl
 import db
 from settings import OUTPUT_PATH
 from utils import mesure
-from drawing import draw_pie, draw_2d, draw_matrix, compare_pies
 
 """
 This module defines classes able to extract information from the stored documents.
@@ -59,20 +59,17 @@ class Processor(object):
     _draw_2d = False
     
     def __init__(self, particular_user=None, store_docs=False, algorithms=(), 
-            output_path=None, **kwargs):
+            **kwargs):
         self._particular_user = particular_user
         self._level = 0
         self.clusters = defaultdict(dict)
         self.algorithms = algorithms
-        self.docs = {}
+        self.stored_docs = {}
         self.store_docs = store_docs
-        self.output_path = output_path or OUTPUT_PATH
+        self.mesure = functools.partial(mesure, print_f=self.info)
 
         for key, value in kwargs.items():
             setattr(self, "_%s" % key, value)
-
-        # init the mesure utility
-        self.mesure = partial(mesure, print_f=self.info)
 
     def get_object_params(self, obj_name):
         """Return the object parameters, to be given to the loader"""
@@ -97,13 +94,9 @@ class Processor(object):
         """dedend the messages"""
         self._level = self._level - 1
 
-    def info(self, message, indent=False):
+    def info(self, message):
         """Print a message to stdout"""
-        if indent:
-            self.indent()
         print "  " * self._level + message
-        if indent:
-            self.dedent()
 
     def __getattr__(self, obj_name):
         """Load the different objects that will be used in the clustering process.
@@ -138,11 +131,11 @@ class Processor(object):
             for what, docs in self.iterate():
                 # store the docs
                 if self.store_docs:
-                    self.docs[what] = docs
+                    self.stored_docs[what] = docs
                 self.info("processing %s (%s)" % (what, len(docs)))
                 self.indent()
                 docs_tr = self.get_features(docs, what)
-                if self._draw_2d and hasattr(self, "get_features_2d"):
+                if self._draw_2d and hasattr(self, "draw_2d"):
                     docs_2d = self.get_features_2d(docs, what)
 
                 for name, klass in self._clusters.items():
@@ -181,16 +174,18 @@ class TextProcessor(Processor):
     def __init__(self, training_set=None, N=100, **kwargs):
         super(TextProcessor, self).__init__(**kwargs)
         self._training_set = training_set
-        self._pca_params = [N,]
+        self._pca_params = [N, training_set]
+        self._docs_params = [training_set, ]
+        self._vec_params = [training_set, ]
 
         if not self._training_set:
             self._training_set = "newsgroup"
 
-    def _load_vec(self):
+    def _load_vec(self, *args):
         # equivalent to CountVectorizer + TfIdf
         return Vectorizer().fit(self.docs)
 
-    def _load_pca(self, N):
+    def _load_pca(self, N, *args):
         return RandomizedPCA(n_components=N, whiten=True).fit(
                 self.vec.transform(self.docs))
 
@@ -198,13 +193,13 @@ class TextProcessor(Processor):
         return RandomizedPCA(n_components=2, whiten=True).fit(
                 self.vec.transform(self.docs))
 
-    def _load_docs(self):
-        if self._training_set == "newsgroup":
+    def _load_docs(self, training_set):
+        if training_set == "newsgroup":
             self.info("extract the 20 newsgroup dataset")
             wide_dataset = fetch_20newsgroups()
             docs = [open(f).read() for f in wide_dataset.filenames]
 
-        elif self._training_set == "docs":
+        elif training_set == "docs":
             docs = [res['content'] for res in 
                     db.resources.find({'blacklisted': False, 
                                        'processed': True})]
@@ -241,7 +236,6 @@ class TextProcessor(Processor):
             docs_2d = self.pca_2d.transform(self.vec.transform(docs))
         return docs_2d
 
-
 class ContextProcessor(Processor):
     """Uses information coming from the context to find clusters.
 
@@ -263,35 +257,77 @@ class ContextProcessor(Processor):
 
     def iterate(self):
         for username in db.users.distinct("username"):
-            if self._particular_user and self._particular_user != username: continue 
+            if self._particular_user and self._particular_user != username:
+                continue 
 
             urls = db.views.find({"user.username": username}).distinct("url")
             resources = []
-            if not urls: continue
+            if not urls:
+                continue
+
             yield username, urls
 
-    def _process_views(self, views):
+    def _process_views(self, views, url):
         """Returns a set of features from a set of views of an url"""
+
+        def _diff_timestamp(timestamp, shift):
+            return int(datetime.fromtimestamp(
+                (int(timestamp)-(shift*60*60*1000))/1000).strftime("%s")) * 1000
+
+        def _viewed(view, shift):
+            """Was this resource viewed "shift" hours ago?"""
+
+            nb_views = len(list(db.views.find({
+                'timestamp': {
+                    '$gt': _diff_timestamp(view['timestamp'], shift),
+                    '$lt': view['timestamp']}, 
+                'user': view['user']
+            })))
+            return nb_views > 0
+
         views = list(views)
         indicators = ['average', 'mean', 'median', 'var', 'std']
 
         row = [len(views), sum([int(v['duration']) for v in views])]
-        # TODO add location
 
         daytimes = []
         weekdays = []
-        for view in views:
+        viewed = defaultdict(list)
+        locations = []
+
+        last_view = None
+        for i, view in enumerate(views):
             daytimes.append(view['daytime'])
             weekdays.append(view['weekday'])
+
+            # have a look if there were activity for this user in the 5 last hours
+            for shift in range(5):
+                viewed[shift].append(_viewed(view, shift + 1))
+
+            # did the user changed his location ?
+            if i > 0:
+                locations.append(views[i-1]['location'] != view['location'])
+            else:
+                locations.append(False)
+
+        # did the user changed of location since the last hour?
+        # same for two, three and four hours before
 
         for indicator in indicators:
             row.append(getattr(np, indicator)(daytimes))
             row.append(getattr(np, indicator)(weekdays))
+            row.append(getattr(np, indicator)(locations))
+            for v in viewed.values():
+                row.append(getattr(np, indicator)(v))
 
         return row
 
     def get_features(self, urls, username):
-        t0 = time()
+        """Compute the features for each of the resources an user viewed
+        """
+        t0 = time() # record the duration of the operation
+
+        # use a progressbar as the process can be very time consuming
         progress = ProgressBar(
                     widgets=["  building the matrix for %s" % username, 
                     Percentage(), Bar()])
@@ -300,7 +336,7 @@ class ContextProcessor(Processor):
         for url in progress(urls):
             # get the views related to this user and this url
             views = db.views.find({"user.username": username, "url": url})
-            features_dataset.append(self._process_views(views))
+            features_dataset.append(self._process_views(views, url))
 
         self.info("matrix generation for %s took %s" % (username, time() - t0))
         return np.array(features_dataset)
@@ -369,7 +405,6 @@ class TextAndContextProcessor(TextProcessor, ContextProcessor):
                 views = db.views.find({"user.username": username, "url": url})
                 context = self._get_features(views)
                 # add text here !
-
             
             # we are interested to work with the contents
             yield username, [res['content'] for res in resources]

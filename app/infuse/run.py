@@ -45,7 +45,7 @@ class Infuse(object):
             # compare the profiles
             for label in np.unique(cluster.labels_):
                 # get only the documents with this label
-                docs.append(" ".join([processor.docs[username][i] for i, val 
+                docs.append(" ".join([processor.stored_docs[username][i] for i, val 
                     in enumerate(cluster.labels_ == label) if val]))
 
         features = processor.get_features(docs)
@@ -64,7 +64,9 @@ class Infuse(object):
         for name, docs in self.processor.iterate():
             features = self.processor.get_features(docs)
             # there is only one tuple (name, docs) so we return here
-            return euclidean_distances(features, features)
+            euclidean_distances(features, features)
+            from ipdb import set_trace; set_trace()
+
 
 
     def get_clusters(self):
@@ -135,62 +137,75 @@ class Infuse(object):
             self._usernames = list(db.users.find().distinct('username'))
         return self._usernames
 
-    @property
-    def rankings(self):
-        if not self._rankings:
-            predictions = {}
-            for username in self.usernames:
-                # get the ranked items
-                print "get the ranked urls"
-                ranked_urls = db.views.find({'feedback':{'$ne':'none', '$exists': True}, 
-                                              'user.username': username}).distinct('url')
+    def rankings(self, processor=None):
+        if processors is None:
+            processors = self._default_processor
 
-                print "get the unranked urls"
-                unranked_urls = db.views.find({'feedback':'none', 
-                                                'user.username': username}).distinct('url')
+        predictions = {}
+        for username in self.usernames:
+            # get the ranked items
+            print "get the ranked urls"
+            ranked_urls = db.views.find(
+                    {'feedback':
+                        {'$ne':'none', '$exists': True}, 
+                        'user.username': username}
+                    ).distinct('url')
 
-                # we have views, we want resources
-                print "get the ranked resources"
-                ranked_resources = list(db.resources.find({
-                    'url': {'$in': ranked_urls}, 
-                    'blacklisted': False, 
-                    'processed': True
-                }))
-                print "get the unranked resources"
-                unranked_resources = list(db.resources.find({
-                    'url': {'$in': unranked_urls},
-                    'blacklisted': False, 
-                    'processed': True
-                }))
+            print "get the unranked urls"
+            unranked_urls = db.views.find(
+                    {'feedback':'none', 
+                     'user.username': username}).distinct('url')
 
-                labels = []
-                print "get feedback"
-                for resource in ranked_resources:
-                    labels.append(int(db.views.find({
-                        'url': resource['url'], 
-                        'user.username': username
-                    }).distinct('feedback')[0]))
+            # we have views, we want resources
+            print "get the ranked resources"
+            ranked_resources = list(db.resources.find({
+                'url': {'$in': ranked_urls}, 
+                'blacklisted': False, 
+                'processed': True
+            }))
+            print "get the unranked resources"
+            unranked_resources = list(db.resources.find({
+                'url': {'$in': unranked_urls},
+                'blacklisted': False, 
+                'processed': True
+            }))
 
-                if ranked_resources and unranked_resources:
-                    # get features from the content
-                    print "get features from ranked dataset"
-                    ranked_dataset = self.processor.get_features([i['content'] 
-                        for i in ranked_resources], username)
-                    print "get features for unranked dataset"
-                    unranked_dataset = self.processor.get_features([i['content'] 
-                        for i in unranked_resources], username)
+            labels = []
+            print "get feedback"
+            for resource in ranked_resources:
+                labels.append(int(db.views.find({
+                    'url': resource['url'], 
+                    'user.username': username
+                }).distinct('feedback')[0]))
 
-                    classifier = svm.LinearSVC()
-                    classifier.fit(ranked_dataset, labels)
-                    predictions[username] = zip([i['url'] for i in ranked_resources],
-                            labels)
-                    predictions[username].extend(zip([i['url'] for i in unranked_resources], 
-                            [classifier.predict(elem) for elem in unranked_dataset]))
-                else:
-                    predictions[username] = [(r['url'], 2.5) for r in unranked_resources]
+            if ranked_resources and unranked_resources:
+                # get features for the resources
 
-            self._rankings = predictions
-        return self._rankings
+                print "get features from ranked dataset"
+                ranked_dataset = processor.get_features(
+                        list(ranked_resources), username)
+
+                print "get features for unranked dataset"
+                unranked_dataset = processor.get_features(
+                        list(unranked_resources), username)
+
+                # and classify them
+                classifier = svm.LinearSVC()
+                classifier.fit(ranked_dataset, labels)
+                predictions[username] = zip(
+                        [i['url'] for i in ranked_resources],
+                        labels
+                )
+                predictions[username].extend(zip(
+                    [i['url'] for i in unranked_resources], 
+                    [classifier.predict(elem) for elem in unranked_dataset]
+                ))
+            else:
+                # FIXME use simple heuristics to get the ranks
+                predictions[username] = [(r['url'], 2.5) for r in 
+                        unranked_resources]
+
+            return predictions
 
     @property
     def processor(self):
@@ -210,6 +225,21 @@ class Infuse(object):
         for processor in processors:
             processor.run()
 
+    def get_topics(self, n_topics=4):
+        """Print the topics using a RandomizedPCA"""
+        tp = TextProcessor("docs")
+        inverse_vocabulary = dict([(y, x) for (x, y) in tp.vec.vocabulary.items()])
+
+        for user, docs in tp.iterate():
+            transformed_docs = tp.get_features(docs, user)
+            print "top %s topics for %s" % (n_topics, user)
+            for i in range(n_topics):
+                top_words = [inverse_vocabulary[n] for n in 
+                    transformed_docs[i].argsort()[-10:][::-1]]
+                print "  - " + ", ".join(top_words)
+            print "---"
+
+
     def clean_users(self):
         """remove the users that don't have any document"""
         for user in list(db.users.find()):
@@ -218,7 +248,11 @@ class Infuse(object):
                 db.users.remove(user)
 
 def main():
+    ContextProcessor().run()
     infuse = Infuse()
+    #infuse.text_users_similarity()
+    infuse.get_topics()
+    return
     infuse.clean_users()
     infuse.collaborative_filtering("alexis")
 
