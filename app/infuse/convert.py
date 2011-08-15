@@ -47,8 +47,6 @@ class TemporaryView(object):
         view.duration = self.duration()
         view.timestamp = long(self.event['timestamp'])
         
-        # compute the time of day and the day of week
-        dt = datetime.datetime.fromtimestamp(int(self.event['timestamp'])/1000)
         view.weekday = dt.weekday()
         view.daytime = dt.hour
         view.save()

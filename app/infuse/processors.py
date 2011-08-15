@@ -173,13 +173,11 @@ class TextProcessor(Processor):
 
     def __init__(self, training_set=None, N=100, **kwargs):
         super(TextProcessor, self).__init__(**kwargs)
+        training_set = training_set or "newsgroup"
         self._training_set = training_set
         self._pca_params = [N, training_set]
         self._docs_params = [training_set, ]
         self._vec_params = [training_set, ]
-
-        if not self._training_set:
-            self._training_set = "newsgroup"
 
     def _load_vec(self, *args):
         # equivalent to CountVectorizer + TfIdf
@@ -301,8 +299,8 @@ class ContextProcessor(Processor):
             weekdays.append(view['weekday'])
 
             # have a look if there were activity for this user in the 5 last hours
-            for shift in range(5):
-                viewed[shift].append(_viewed(view, shift + 1))
+            #for shift in range(5):
+            #    viewed[shift].append(_viewed(view, shift + 1))
 
             # did the user changed his location ?
             if i > 0:
@@ -317,8 +315,8 @@ class ContextProcessor(Processor):
             row.append(getattr(np, indicator)(daytimes))
             row.append(getattr(np, indicator)(weekdays))
             row.append(getattr(np, indicator)(locations))
-            for v in viewed.values():
-                row.append(getattr(np, indicator)(v))
+            #for v in viewed.values():
+            #    row.append(getattr(np, indicator)(v))
 
         return row
 

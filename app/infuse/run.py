@@ -1,4 +1,6 @@
 from collections import defaultdict
+import os
+import pickle
 
 import numpy as np
 from scikits.learn.cluster import KMeans
@@ -53,7 +55,7 @@ class Infuse(object):
         return euclidean_distances(features, features)
 
 
-    def text_users_similarity(self):
+    def text_cluster_users_similarity(self):
         """Compute and return similarity scores between users, based on text features.
         """
 
@@ -64,9 +66,48 @@ class Infuse(object):
         for name, docs in self.processor.iterate():
             features = self.processor.get_features(docs)
             # there is only one tuple (name, docs) so we return here
-            euclidean_distances(features, features)
-            from ipdb import set_trace; set_trace()
+            return euclidean_distances(features, features)
+            
+    def text_users_similarity(self):
+        """Compute the similarity between users using text features"""
 
+        processor = self._processor = TextProcessor()
+        features = []
+        for user, docs in processor.iterate():
+            features.append(processor.get_features(docs, user))
+        
+        # draw the matrix for alexis
+        draw_matrix(euclidean_distances(features[0], features[0]), 
+            "text_alexis", OUTPUT_PATH)
+
+    def context_users_similarity(self):
+        """Compute the similarity between users using context features"""
+
+        filename = os.path.join(OUTPUT_PATH, 
+                "pickle", "context_users_features.pickle")
+
+        if os.path.isfile(filename):
+            with open(filename) as f:
+                features = pickle.load(f)
+        else:
+            self._processor = ContextProcessor()
+            features = []
+            # get all the features for each user
+            for user, docs in self._processor.iterate():
+                features.append(self._processor.get_features(docs, user))
+            with open(filename, "w+") as f:
+                pickle.dump(features, f)
+
+        reduced_features = []
+        for doc in features:
+            reduced_features.append(np.mean(doc, axis=1))
+
+        from ipdb import set_trace; set_trace()
+        # it is possible to cluster each user's documents
+        #
+        # for alexis, let's print the similarity matrix of his documents
+        draw_matrix(euclidean_distances(features[0], features[0]),
+                "context_alexis", OUTPUT_PATH)
 
 
     def get_clusters(self):
@@ -201,7 +242,20 @@ class Infuse(object):
                     [classifier.predict(elem) for elem in unranked_dataset]
                 ))
             else:
-                # FIXME use simple heuristics to get the ranks
+                # happens only when the user didn't gave any feedback about
+                # the views he made (that's the case for the majority of the users
+                # Use simple heuristics to get the ranks
+
+                # We need to get some information such as the average duration of
+                # a visit ...
+                print duration_avg #FIXME
+
+                for resource in unranked_resources:
+                    # get all the views of this resource
+                    # 
+                    # compute the diff with the avg duration
+                    # was the resource viewed a lot?
+                    pass
                 predictions[username] = [(r['url'], 2.5) for r in 
                         unranked_resources]
 
@@ -239,7 +293,6 @@ class Infuse(object):
                 print "  - " + ", ".join(top_words)
             print "---"
 
-
     def clean_users(self):
         """remove the users that don't have any document"""
         for user in list(db.users.find()):
@@ -248,13 +301,12 @@ class Infuse(object):
                 db.users.remove(user)
 
 def main():
-    ContextProcessor().run()
     infuse = Infuse()
-    #infuse.text_users_similarity()
-    infuse.get_topics()
-    return
-    infuse.clean_users()
-    infuse.collaborative_filtering("alexis")
+    infuse.context_users_similarity()
+    # infuse.text_users_similarity()
+    # infuse.get_topics()
+    # infuse.clean_users()
+    # infuse.collaborative_filtering("alexis")
 
 if __name__ == '__main__':
     main()

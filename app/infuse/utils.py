@@ -1,4 +1,5 @@
 from time import time
+import sys
 from contextlib import contextmanager
 
 def split_list(original_list, n):
@@ -19,7 +20,7 @@ def split_list(original_list, n):
 
 
 @contextmanager
-def mesure(what, print_f=None, **kwargs):
+def mesure(what, print_f=None, indent=0, **kwargs):
     """Mesure the execution time of an operation. It should be used like this::
 
         with mesure("Description of the operation"):
@@ -29,8 +30,11 @@ def mesure(what, print_f=None, **kwargs):
     :param print_f: a callable that will be called to display the messages
     :param **kwargs: additional parameters to give to the callable
     """
+    def _print(text):
+        print "  " * indent, text
+
     if not print_f:
-        print_f = lambda *x: sys.stdout.write(" ".join(map(str, x)))
+        print_f = _print
     t0 = time()
     yield
     print_f("%s performed in %s" % (what, time() - t0), **kwargs)
