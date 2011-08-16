@@ -108,10 +108,10 @@ def get_profiles_similarity(usernames, N):
         vec_profiles = pca.transform(vec.transform(doc_profiles))
 
     # Compute their similarity score
-    return euclidean_distances(vec_profiles, vec_profiles)
+    return euclidean_distances(vec_profiles, vec_profiles), urls
 
 
-def collaborative_filtering(usernames, similarity, rankings, N):
+def collaborative_filtering(usernames, similarity, rankings, urls, N):
     """Do the collaborative filtering for the given usernames, rankings and 
     similarity between profiles.
 
@@ -290,13 +290,13 @@ def main():
     N = 10
 
     # try with 10 profiles per user
-    similarity = get_profiles_similarity(usernames, N) 
+    similarity, urls = get_profiles_similarity(usernames, N) 
 
     # get the rankings for all the users
     rankings = get_rankings(usernames)
 
     # get the recommendations
-    recommendations = collaborative_filtering(usernames, similarity, rankings, N)
+    recommendations = collaborative_filtering(usernames, similarity, rankings, urls, N)
 
     return recommendations
 
