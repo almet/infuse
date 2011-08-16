@@ -24,7 +24,7 @@ a need for user management. Users are abble to:
 * create an account
 * delete an account (along with all their data)
 * access the recorded data about them
-* modify they credentials
+* modify their credentials
 
 Data extraction
 ===============
@@ -44,7 +44,7 @@ Those steps are done in the following scripts:
 * Gathering the text of the HTML resources + extracting metrics is done in the
   infuse.download module. It uses a python/java bridge to use a java tool able
   to transform HTML content into text content. It is possible to run the
-  download of resources by doing `python infuse/download.py 4` where 4 is the
+  download of resources by doing `python infuse/download.py N` where N is the
   number of threads you want to run.
 
 
@@ -56,8 +56,7 @@ subjects, browsing trees, geolocalisation. For each  user, determine the
 different possible profiles, using clustering techniques.
 
 One of the techniques used is to compute the TF/IDF (Term Frequency, Inverse
-Document Frequency matrix for each url) and to split the resources in
-N groups (where N is determined before running the clustering algorithm).
+Document Frequency matrix for each url) and to split the resources in groups.
 
 Then, each user is attached to multiple profiles
 
@@ -69,9 +68,7 @@ resource:
 
 * The period of the day the resource have been viewed
 * The location the view have been made
-* The topic of the visited webpage (using TF/IDF measures)
-
-Based on information about my browsing, it seems that 
+* The topic of the visited webpage (using TF/IDF measures)?
 
 Links ranking
 =============
@@ -83,12 +80,14 @@ feedback, this step is not mendatory, but will be proposed to them.
 It is possible to provide feedback by going through
 http://infuse.notmyidea.org/feedback/
 
+When no feedback is given, it is directly infered from the viewing information,
+using simple heuristincs.
+
 Ranking prediction
 ==================
 
 Uses collaborative filtering techniques to predict the rankings of unknown
 items in the profiles clusters.
-
 
 Installation
 ============
@@ -98,6 +97,6 @@ command::
 
     $ pip install -r requirements.txt
 
-However, it will be needed to install manually mongodb (the server), rabbitmq
-(the queue manager) and jpype (a python/java bridge). Similarly, you will need
-to install numpy before running `pip install` as `scikits.learn` depends on it.
+However, it will be needed to install manually mongodb (the server) and jpype 
+(a python/java bridge). Similarly, you will need to install numpy before 
+running `pip install` as `scikits.learn` depends on it.
