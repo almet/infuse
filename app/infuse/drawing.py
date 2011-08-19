@@ -23,7 +23,7 @@ def draw_pie(cluster, algo, username, features, output_path):
     fig.savefig(filename)
     return filename
 
-def draw_2d( cluster, X, algo, username, features, output_path):
+def draw_2d(cluster, X, algo, username, features, output_path):
     """Plot the results on a 2D chart.
     
     :param cluster: the clustering object containting the labels and the centers
@@ -57,7 +57,7 @@ def draw_2d( cluster, X, algo, username, features, output_path):
         cluster_center = cluster_centers[k]
 
         # plot all the points belonging to this cluster
-        # x and y axis are computed from a PCA and such can't be labeled
+        # x and y axis are computed from a PCA and so can't be labeled
         ax.plot(X[my_members, 0], X[my_members, 1], col)
 
         # plot the centers
