@@ -43,6 +43,19 @@ class UserForm(Form):
         if user:
             raise ValidationError("This username is already used")
 
+class AuthenticationForm(Form):
+    username = TextField("Username", validators=[Required()])
+    password = PasswordField("Password", validators=[Required()])
+
+    def validate_password(self, field):
+        m = hashlib.md5()
+        m.update(self.password.data)
+        user = users.one({'username': self.username.data, 'password': m.hexdigest()})
+        if not user:
+            raise ValidationError("Credentials invalid")
+        else:
+            # add the user into the context globals
+            session["user"] = user
 
 # utils
 def need_authentication(func):
@@ -60,6 +73,14 @@ def need_authentication(func):
             return func(*args, **kwargs)
         else:
             abort(401)
+    return wrapper
+
+def need_session(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not "user" in session:
+            return redirect(url_for("session_authenticate"))
+        return func(*args, **kwargs)
     return wrapper
 
 
@@ -84,6 +105,16 @@ def _get_user():
 
 
 # views
+
+@app.route("/authenticate", methods=["GET", "POST"])
+def session_authenticate(url=None):
+    form = AuthenticationForm()
+    if request.method == "POST":
+        from ipdb import set_trace; set_trace()
+        if form.validate():
+            return redirect(url_for("feedback"))
+    return render_template("login.html", form=form)
+
 @app.route("/")
 def index():
     return render_template("index.html", form=UserForm())
@@ -161,19 +192,21 @@ def add_tabrelation(user):
 
 
 @app.route("/feedback")
+@need_session
 def feedback():
     """List all the resources mapped to this user, with a possibility to tell that
     the resources have been useful or not
     """
 
     # get all the resources for a particular user, that have not already been marked
-    view_urls = views.find({"user.username": "alexis", "feedback": "none"}).distinct("url")
+    view_urls = views.find({"user.username": session["user"]["username"], "feedback": "none"}).distinct("url")
     urls = resources.find({'url': {'$in': view_urls }, 
             'blacklisted': False}).distinct("url")
 
     return render_template("feedback.html", urls=urls)
 
 @app.route("/feedback", methods=["POST"])
+@need_session
 def post_feedback():
     """Record the feedback from the user"""
 
@@ -184,7 +217,7 @@ def post_feedback():
     feedback = request.form['feedback']
 
     # get all the views from this user and this url
-    for view in views.View.find({"user.username": "alexis", "url": url}):
+    for view in views.View.find({"user.username": session["user"]["username"], "url": url}):
         view.feedback = feedback
         view.save()
 

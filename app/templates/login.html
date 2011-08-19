@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+<form action="" method="post" accept-charset="utf-8">
+    {{ form.hidden_tag() }}
+    <p>{{ form.username }}</p>
+    <p>{{ form.password }}</p>
+    <p><input type="submit" value="Continue &rarr;"></p>
+    </form>
+{% endblock %}
