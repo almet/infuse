@@ -1,6 +1,7 @@
 import os
 import pylab as pl
 import numpy as np
+from itertools import cycle
 
 def draw_pie(cluster, algo, username, features, output_path):
     """Draw a pie shart with the percentages of documents in each cluster
@@ -23,7 +24,8 @@ def draw_pie(cluster, algo, username, features, output_path):
     fig.savefig(filename)
     return filename
 
-def draw_2d(cluster, X, algo, username, features, output_path):
+def draw_cluster_2d(cluster, X, algo=None, username=None, features=None, 
+        output_path=None, filename=None):
     """Plot the results on a 2D chart.
     
     :param cluster: the clustering object containting the labels and the centers
@@ -34,7 +36,6 @@ def draw_2d(cluster, X, algo, username, features, output_path):
     :param features: the set of features that was used
     :param output_path: the path to output to
     """
-    features = self._features
     labels = cluster.labels_
     cluster_centers = cluster.cluster_centers_
 
@@ -50,7 +51,6 @@ def draw_2d(cluster, X, algo, username, features, output_path):
 
     colors = cycle(['b.', 'g.', 'r.', 'c.', 'm.', 'y.', 'k.', 'bv', 'gv', 'rv', 'cv', 'mv', 'yv', 'kv'])
     for k, col in zip(range(n_clusters_), colors): # different color for each cluster
-
         # convert the matrix into a boolean matrix 
         # (to only get the point in this cluster)
         my_members = labels == k
@@ -63,28 +63,27 @@ def draw_2d(cluster, X, algo, username, features, output_path):
         # plot the centers
         ax.plot(cluster_center[0], cluster_center[1], 'o' if col[1] == '.' else col[1], 
                 markerfacecolor=col[0], markeredgecolor='k', markersize=14)
-
+    if not filename:
         ax.set_title('%s: %s clusters using %s' % (algo, n_clusters_, features))
-    filename = os.path.join(output_path, 
+        filename = os.path.join(output_path, 
         "figures/2d_%s_%s_%s.png" % (features.lower(), algo, username))
     fig.savefig(filename)
     return filename
 
 
-def compare_pies(series, name, output_path):
+def compare_pies(series, titles, name=None, output_path=None, filename=None):
     """Compare the given series using pie representation"""
     fig = pl.figure()
-
-    len(series)
+    
     for idx, serie in enumerate(series):
-        ax = fig.add_subplot(1, len(series), 1 + idx)
-        ax.pie(serie, autopct='%1.1f%%', shadow=True, colors=[c for c in 'bgrcmyk'])
+        ax = fig.add_subplot(3, 3, 1 + idx)
+        ax.pie(serie)
+        pl.title(titles[idx])
 
-    filename = os.path.join(output_path, 
-        "figures/compare_pies_%s.png" % name)
+    if not filename:
+        filename = os.path.join(output_path, "figures/compare_pies_%s.png" % name)
     fig.savefig(filename)
     return filename
-
 
 def draw_matrix(similarity, filename, output_path):
     """Draw a matrix into the specified filename"""
@@ -94,3 +93,15 @@ def draw_matrix(similarity, filename, output_path):
     filename = os.path.join(output_path, "figures/sim_matrix_%s.png" % filename)
     fig.savefig(filename)
     return filename
+
+def draw_2d(X, filename, title=None):
+    # create the figure
+    fig = pl.figure(None)
+
+    # clean the figure window
+    ax = fig.add_subplot(111)
+    ax.plot([i[0] for i in X], [i[1] for i in X], 'o')
+
+    if title:
+        pl.title(title)
+    fig.savefig(filename)

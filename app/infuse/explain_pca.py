@@ -4,6 +4,8 @@ import numpy as np
 import pylab as pl
 from scikits.learn.decomposition import RandomizedPCA
 
+from drawing import draw_2d
+
 def main():
     dataset = []
 
@@ -19,16 +21,7 @@ def main():
     transformed_dataset = RandomizedPCA(2).fit(dataset).transform(dataset)
     from ipdb import set_trace; set_trace()
 
-    draw(transformed_dataset, 'after.png')
-
-def draw(X, filename):
-    # create the figure
-    fig = pl.figure(None)
-
-    # clean the figure window
-    ax = fig.add_subplot(111)
-    ax.plot([i[0] for i in X], [i[1] for i in X], 'o')
-    fig.savefig(filename)
+    draw_2d(transformed_dataset, 'after.png')
 
 if __name__ == '__main__':
     main()

@@ -2,6 +2,7 @@ import os
 import pickle
 from collections import defaultdict
 from operator import itemgetter
+from itertools import groupby
 
 from scikits.learn.cluster import KMeans, MeanShift, estimate_bandwidth
 from scikits.learn.metrics.pairwise import euclidean_distances
@@ -14,13 +15,13 @@ from utils import mesure
 from drawing import draw_matrix
 
 
-def get_views_features(views):
+def get_views_features(views, advanced=False):
     features = []
 
     with mesure("building the vector space", indent=1):
         # build the vector space
         for view in views:
-            features.append([
+            row = [
                 # lat, long
                 float(view['location'][0]), float(view['location'][1]), 
                 int(view['duration']),
@@ -28,7 +29,12 @@ def get_views_features(views):
                 # split the day in 6 bits of 4 hours.
                 int(view['daytime']) / 4, 
                 int(view['weekday'])
-            ])
+            ]
+            if advanced:
+                # get information coming from the browsing tree
+                pass # TODO Need a transformation in convert.py and re-import all data
+
+            features.append(row)
     return features
 
 
@@ -175,7 +181,43 @@ def collaborative_filtering(usernames, similarity, rankings, urls, N):
 
     return recommendations
 
-def get_rankings(usernames):
+def get_ranked_dataset(username):
+    ranked_urls = db.views.find(
+            {'feedback':
+                {'$ne':'none', '$exists': True}, 
+                'user.username': username}
+            ).distinct('url')
+    # we have views, convert them to resources
+    ranked_resources = list(db.resources.find({
+        'url': {'$in': ranked_urls}, 
+        'blacklisted': False, 
+        'processed': True
+    }))
+    return ranked_resources
+
+def get_unranked_dataset(username):
+    unranked_urls = db.views.find(
+            {'feedback':'none', 
+             'user.username': username}).distinct('url')
+
+    unranked_resources = list(db.resources.find({
+        'url': {'$in': unranked_urls},
+        'blacklisted': False, 
+        'processed': True
+    }))
+    return unranked_resources
+
+def get_views_from_resources(resources, username):
+    views = []
+    for resource in resources:
+        views.append(db.views.find_one({
+            "url": resource['url'], 
+            "user.username": username
+        }))
+    return views
+
+def get_rankings(usernames, get_ranked_dataset=get_ranked_dataset, 
+        get_unranked_dataset=get_unranked_dataset):
     """Return the rankings for the given list of usernames.
 
     If rankings exists for some views of an url, the other ones are infered from 
@@ -184,48 +226,15 @@ def get_rankings(usernames):
     :usernames:
         The list of usernames to work with.
     """
-
-    def _get_views_from_resources(resources, username):
-        views = []
-        for resource in resources:
-            views.append(db.views.find_one({
-                "url": resource['url'], 
-                "user.username": username
-            }))
-        return views
-
     predictions = {}
     for username in usernames:
         # get the ranked items
-        print "get the ranked urls"
-        ranked_urls = db.views.find(
-                {'feedback':
-                    {'$ne':'none', '$exists': True}, 
-                    'user.username': username}
-                ).distinct('url')
-
-        print "get the unranked urls"
-        unranked_urls = db.views.find(
-                {'feedback':'none', 
-                 'user.username': username}).distinct('url')
-
-        # we have views, convert them to resources
-        print "get the ranked resources"
-        ranked_resources = list(db.resources.find({
-            'url': {'$in': ranked_urls}, 
-            'blacklisted': False, 
-            'processed': True
-        }))
-        print "get the unranked resources"
-        unranked_resources = list(db.resources.find({
-            'url': {'$in': unranked_urls},
-            'blacklisted': False, 
-            'processed': True
-        }))
+        ranked_resources = get_ranked_dataset(username)
+        unranked_resources = get_unranked_dataset(username)
 
         labels = []
-        print "get feedback"
-
+        
+        print "getting feedback"
         # Only the first view of an url is selected here and used as label.
         # XXX Could it be useful to evaluate multiple times those resources
         # for all the different views?
@@ -237,16 +246,17 @@ def get_rankings(usernames):
                 'user.username': username
             }).distinct('feedback')[0]))
 
+    
         if ranked_resources and unranked_resources:
             # get features for the resources
 
-            print "get features from ranked dataset"
-            ranked_dataset = get_views_features(
-                    _get_views_from_resources(list(ranked_resources), username))
-
             print "get features for unranked dataset"
             unranked_dataset = get_views_features(
-                    _get_views_from_resources(list(unranked_resources), username))
+                    get_views_from_resources(list(unranked_resources), username))
+
+            print "get features from ranked dataset"
+            ranked_dataset = get_views_features(
+                    get_views_from_resources(list(ranked_resources), username))
 
             # Classify the unranked resources.
             # Here, the SVC is learning a model from the known rankings and apply
@@ -262,26 +272,45 @@ def get_rankings(usernames):
                 [i['url'] for i in unranked_resources], 
                 classifier.predict(unranked_dataset)
             ))
-            predictions[username] = dict(temp_predictions)
+            temp_predictions = dict(temp_predictions)
         else:
             # happens only when the user didn't gave any feedback about
             # the views he made (that's the case for the majority of the users
             # Use simple heuristics to get the ranks
 
             # We need to get some information such as the average duration of
-            # a visit ...
-            #duration_avg #FIXME
+            # a visit and its avg number of views
+            unranked_views = get_views_from_resources(
+                    list(unranked_resources), username)
 
-            for resource in unranked_resources:
-                # get all the views of this resource
-                # 
-                # compute the diff with the avg duration
-                # was the resource viewed a lot?
-                pass
-            predictions[username] = dict([(r['url'], 2.5) for r in 
-                    unranked_resources])
+            duration_avg = float(sum([int(v['duration']) for v in unranked_views])) \
+                                / len(unranked_views)
 
-            # FIXME handle other cases, when we only have ranked resources
+            nb_views = []
+            for url, views in groupby(unranked_resources, itemgetter('url')):
+                nb_views.append(len(list(views)))
+
+            nbviews_avg = float(sum(nb_views)) / len(unranked_views)
+
+            temp_predictions = {}
+            for url, views in groupby(unranked_views, itemgetter('url')):
+                # give a mark from 0 to 5 given the number of times and the 
+                # duration of the visits
+                views_ = list(views)
+                duration_ = float(sum([int(v['duration']) for v in views_])) \
+                        / len(views_)
+
+                score = 0
+                if len(views_) > nbviews_avg:
+                    score += 1
+                if len(views_) > nbviews_avg * 3:
+                    score += 1
+                if duration_ > duration_avg:
+                    score += 1
+                if duration_ > duration_avg * 3:
+                    score += 2
+                temp_predictions[url] = score
+        predictions[username] = temp_predictions
 
     return dict(predictions)
 
